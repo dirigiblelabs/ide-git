@@ -88,7 +88,7 @@
 	
 	<div class="shell">
 		<div class="sidebar list-group">
-			<a class="list-group-item" ng-repeat="perspective in perspectives" title="{{perspective.name}}" href="{{perspective.link}}" target="_blank"><i class="fa fa-{{perspective.image}} fa-2x"></i></a>
+			<a class="list-group-item" ng-repeat="perspective in perspectives" ng-class="{active: perspective.name==='Git'}" title="{{perspective.name}}" href="{{perspective.link}}" target="_blank"><i class="fa fa-{{perspective.image}} fa-2x"></i></a>
 		</div>
 		<div class="plane"></div>
 	</div>
