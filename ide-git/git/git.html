@@ -15,7 +15,9 @@
 	<!-- AngularJS -->
 	<script src="/services/v3/web/resources/angular/1.4.7/angular.min.js"></script>
 	<script src="/services/v3/web/resources/angular/1.4.7/angular-resource.min.js"></script>
-
+	<script src="/services/v3/web/resources/angular/1.4.7/angular-animate.min.js"></script>
+	<script src="/services/v3/web/resources/angular/1.4.7/angular-sanitize.min.js"></script>
+	
 	<!-- jsTree -->
 	<link href="/services/v3/core/theme/jstree.css" rel="stylesheet">
 	<script src="/services/v3/web/resources/jstree/3.3.4/jstree.js"></script>
@@ -27,7 +29,9 @@
 	<!-- Custom IDE Styles -->
 	<link type="text/css" rel="stylesheet" href="/services/v3/core/theme/ide.css" />
 	
+	<script src="../../ide/ui/angular-ui-bootstrap-modal-dialog.js"></script>
 	<script src="git.js"></script>
+	
 
 </head>
 
@@ -35,15 +39,16 @@
 
 	<div>
 		<div class="btn-group pull-right" role="group" aria-label="toolbar">
-			<div class="btn-group">
+			<!-- <div class="btn-group">
 			  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="New">
 			    <i class="fa fa-plus"></i>
 			  </button>
 			  <div class="dropdown-menu">
-				  <a class="dropdown-item" href="#" ng-click="workspace.cloneProject()">Clone Project</a>
+				  <a class="dropdown-item" href="#" ng-click="workspace.open()">Clone Project</a>
 				  <div class="dropdown-divider"></div>
 			  </div>
-			</div>
+			</div> -->
+			<button type="button" class="btn btn-default" title="Clone Repository" ng-click="workspace.openClone()"><i class="fa fa-plus"></i></button>
 			<select ng-model="workspace.selectedWs" ng-options="o as o for o in workspace.workspaces" ng-change="workspace.workspaceSelected()"
 				class="dropdown btn btn-default dropdown-toggle" title="Workspaces"></select>
 		</div>
@@ -51,5 +56,24 @@
 	
 	<div class="workspace"></div>
 
+
+	<div modal="workspace.showClone" close="workspace.cancelClone()" class="modal fade" role="dialog">
+	    <div class="modal-header">
+	        <h4>Clone Repository</h4>
+	    </div>
+	    <div class="modal-body">
+	        <div class="form-group row">
+				<label class="col-xs-3 col-form-label">URL</label>
+				<div class="col-xs-9">
+					<input class="form-control" type="text" placeholder="https://github.com/myspace/myproject.git" ng-model="workspace.clone.url" required="required">
+				</div>
+			</div>
+	    </div>
+	    <div class="modal-footer">
+	      <button class="btn btn-primary" ng-click="workspace.okClone()">Clone</button>
+	      <button class="btn btn-default" ng-click="workspace.cancelClone()">Cancel</button>
+	    </div>
+	</div>
+	
 </body>
 </html>

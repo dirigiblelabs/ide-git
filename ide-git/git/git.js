@@ -331,7 +331,7 @@ angular.module('workspace.config', [])
 	.constant('WS_SVC_MANAGER_URL','/services/v3/ide/workspace')
 	.constant('GIT_SVC_URL','/services/v3/ide/git')
 	
-angular.module('workspace', ['workspace.config'])
+angular.module('workspace', ['workspace.config', 'ngAnimate', 'ngSanitize', 'ui.bootstrap.modal.dialog'])
 .config(['$httpProvider', function($httpProvider) {
 	//check if response is error. errors currently are non-json formatted and fail too early
 	$httpProvider.defaults.transformResponse.unshift(function(data, headersGetter, status){
@@ -450,6 +450,12 @@ angular.module('workspace', ['workspace.config'])
 	this.workspaces;
 	this.selectedWs;
 	
+	this.clone = {};
+	this.push = {};
+	this.pull = {};
+	this.reset = {};
+	this.share = {};
+	
 	workspaceService.listWorkspaceNames()
 		.then(function(workspaceNames) {
 			this.workspaces = workspaceNames;
@@ -471,11 +477,19 @@ angular.module('workspace', ['workspace.config'])
 		this.wsTree.refresh();
 	};
 	
-	this.cloneProject = function(){
-		var repository = prompt("Repository: ", "Repository");
-		if (repository) {
-			gitService.cloneProject(this.selectedWs, repository, this.wsTree);
+	this.openClone = function() {
+		this.showClone = true;
+	};
+
+	this.okClone = function() {
+		this.showClone = false;
+		if (this.clone.url) {
+			gitService.cloneProject(this.selectedWs, this.clone.url, this.wsTree);
 		}
+	};
+
+	this.cancelClone = function() {
+		this.showClone = false;
 	};
 
 }]);
