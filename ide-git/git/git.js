@@ -619,7 +619,7 @@ angular.module('workspace', ['workspace.config', 'ngAnimate', 'ngSanitize', 'ui.
 			
 		async function run() {
 		  await sleep(2000);
-		  window.open(msg.data.uri, '_blank');
+		  window.location.href = window.location.origin + msg.data.uri;
 		}
 	}.bind(this));
 	
