@@ -539,42 +539,49 @@ angular.module('workspace', ['workspace.config', 'ngAnimate', 'ngSanitize', 'ui.
 		"contextmenu": {
 			"items" : function(node) {
 				var ctxmenu = {};
-				ctxmenu.pull = {
-					"separator_before": false,
-					"label": "Pull",
-					"action": function(data){
-						var tree = $.jstree.reference(data.reference);
-						var node = tree.get_node(data.reference);
-						tree.element.trigger('jstree.workspace.pull', [node.original._file]);
-					}.bind(this)
-				};
-				ctxmenu.push = {
-					"separator_before": false,
-					"label": "Push",
-					"action": function(data){
-						var tree = $.jstree.reference(data.reference);
-						var node = tree.get_node(data.reference);
-						tree.element.trigger('jstree.workspace.push', [node.original._file]);
-					}.bind(this)
-				};
-				ctxmenu.reset = {
-					"separator_before": false,
-					"label": "Reset",
-					"action": function(data){
-						var tree = $.jstree.reference(data.reference);
-						var node = tree.get_node(data.reference);
-						tree.element.trigger('jstree.workspace.reset', [node.original._file]);
-					}.bind(this)
-				};
-				ctxmenu.share = {
-						"separator_before": false,
-						"label": "Share",
-						"action": function(data){
-							var tree = $.jstree.reference(data.reference);
-							var node = tree.get_node(data.reference);
-							tree.element.trigger('jstree.workspace.share', [node.original._file]);
-						}.bind(this)
-					};
+				if(this.get_type(node) === "project") {
+					if (node.original._file.git) {
+						ctxmenu.pull = {
+							"separator_before": false,
+							"label": "Pull",
+							"action": function(data){
+								var tree = $.jstree.reference(data.reference);
+								var node = tree.get_node(data.reference);
+								tree.element.trigger('jstree.workspace.pull', [node.original._file]);
+							}.bind(this)
+						};
+						ctxmenu.push = {
+							"separator_before": false,
+							"label": "Push",
+							"action": function(data){
+								var tree = $.jstree.reference(data.reference);
+								var node = tree.get_node(data.reference);
+								tree.element.trigger('jstree.workspace.push', [node.original._file]);
+							}.bind(this)
+						};
+						ctxmenu.reset = {
+							"separator_before": false,
+							"label": "Reset",
+							"action": function(data){
+								var tree = $.jstree.reference(data.reference);
+								var node = tree.get_node(data.reference);
+								tree.element.trigger('jstree.workspace.reset', [node.original._file]);
+							}.bind(this)
+						};
+					} else {
+						ctxmenu.share = {
+							"separator_before": false,
+							"label": "Share",
+							"action": function(data){
+								var tree = $.jstree.reference(data.reference);
+								var node = tree.get_node(data.reference);
+								tree.element.trigger('jstree.workspace.share', [node.original._file]);
+							}.bind(this)
+						};
+					}
+					
+					
+				}
 				
 				return ctxmenu;
 			}
