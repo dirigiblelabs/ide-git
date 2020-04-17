@@ -251,7 +251,7 @@ WorkspaceTreeAdapter.prototype.init = function(containerEl, workspaceName, works
 						var nodeText = branch.name + ': ' + branch.commitShortId + " " + branch.commitMessage + " " + "(" + branch.commitAuthor + " on " + branch.commitDate + ")";
 						var newNode = { state: "open", "text": nodeText, "id": parent.id + "$" + branch.name, 
 							"type": "branch", "name": branch.name, "current": branch.current, "project": projectParent.text,
-							"icon": branch.current ? "fa fa-arrow-right" : "fa fa-code-fork"};
+							"icon": branch.current ? "fa fa-caret-right" : "fa fa-code-fork"};
 						var child = $('.workspace').jstree("create_node", parent, newNode, position, false, false);
 					})
 				});
