@@ -94,12 +94,12 @@ GitService.prototype.getStagedFiles = function(workspace, project) {
 }
 GitService.prototype.addFiles = function(workspace, project, files) {
 	var url = new UriBuilder().path(this.gitServiceUrl.split('/')).path(workspace).path(project).path("add").build();
-	var list = files.map(e => e).join(",");
+	var list = files.join(",");
 	return this.$http.post(url, JSON.stringify(list));
 }
 GitService.prototype.removeFiles = function(workspace, project, files) {
 	var url = new UriBuilder().path(this.gitServiceUrl.split('/')).path(workspace).path(project).path("remove").build();
-	var list = files.map(e => e).join(",");
+	var list = files.join(",");
 	return this.$http.post(url, JSON.stringify(list));
 }
 
