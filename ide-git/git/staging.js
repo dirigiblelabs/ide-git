@@ -97,6 +97,11 @@ GitService.prototype.addFiles = function (workspace, project, files) {
 	var list = files.join(",");
 	return this.$http.post(url, JSON.stringify(list));
 }
+GitService.prototype.revertFiles = function (workspace, project, files) {
+	var url = new UriBuilder().path(this.gitServiceUrl.split('/')).path(workspace).path(project).path("revert").build();
+	var list = files.join(",");
+	return this.$http.post(url, JSON.stringify(list));
+}
 GitService.prototype.removeFiles = function (workspace, project, files) {
 	var url = new UriBuilder().path(this.gitServiceUrl.split('/')).path(workspace).path(project).path("remove").build();
 	var list = files.join(",");
@@ -245,6 +250,13 @@ var stagingApp = angular.module('stagingApp', ['git.config', 'ngAnimate', 'ngSan
 					});
 				}.bind(this));
 			}
+		}
+
+		this.revertClicked = function () {
+			gitService.revertFiles(this.selectedWorkspace, this.selectedProject, this.selectedUnstagedFiles)
+				.then(function () {
+					this.refresh();
+				}.bind(this));
 		}
 
 		$messageHub.on('git.repository.selected', function (msg) {
