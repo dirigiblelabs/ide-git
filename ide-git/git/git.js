@@ -423,125 +423,123 @@ GitService.prototype.cloneProject = function(wsTree, workspace, repository, bran
 	var gitBranch = branch ? branch : "master";
 	var url = new UriBuilder().path(this.gitServiceUrl.split('/')).path(workspace).path("clone").build();
 	return this.$http.post(url, {
-			"repository": repository,
-			"branch": gitBranch,
-			"publish": true,
-			"username": username,
-			"password": btoa(password),
-			"projectName": projectName})
-			.then(function(response){
-				wsTree.refresh();
-				return response.data;
-			});
+		"repository": repository,
+		"branch": gitBranch,
+		"publish": true,
+		"username": username,
+		"password": btoa(password),
+		"projectName": projectName
+	})
+	.then(function(response) {
+		wsTree.refresh();
+		return response.data;
+	});
 }
 GitService.prototype.pullAllProjects = function(wsTree, workspace, username, password, branch){
     var url = new UriBuilder().path(this.gitServiceUrl.split('/')).path(workspace).path("pull").build();
 	return this.$http.post(url, {
-			"publish": true,
-			"username": username,
-			"password": btoa(password),
-			"branch": branch})
-			.then(function(response){
-				wsTree.refresh();
-				return response.data;
-			});
+		"publish": true,
+		"username": username,
+		"password": btoa(password),
+		"branch": branch
+	})
+	.then(function(response) {
+		wsTree.refresh();
+		return response.data;
+	});
 }
 GitService.prototype.pullProject = function(wsTree, workspace, project, username, password, branch){
     var url = new UriBuilder().path(this.gitServiceUrl.split('/')).path(workspace).path(project).path("pull").build();
 	return this.$http.post(url, {
-			"publish": true,
-			"username": username,
-			"password": btoa(password),
-			"branch": branch})
-			.then(function(response){
-				wsTree.refresh();
-				return response.data;
-			});
+		"publish": true,
+		"username": username,
+		"password": btoa(password),
+		"branch": branch
+	})
+	.then(function(response) {
+		wsTree.refresh();
+		return response.data;
+	});
 }
-GitService.prototype.pushAllProjects = function(wsTree, workspace, commitMessage, username, password, email, branch){
+GitService.prototype.pushAllProjects = function(wsTree, workspace, username, password, email){
 	var url = new UriBuilder().path(this.gitServiceUrl.split('/')).path(workspace).path("push").build();
 	return this.$http.post(url, {
-			"commitMessage": commitMessage,
-			"username": username,
-			"password": btoa(password),
-			"email": email,
-			"autoAdd": true,
-			"autoCommit": true
-			})
-			.then(function(response){
-				wsTree.refresh();
-				return response.data;
-			});
+		"username": username,
+		"password": btoa(password),
+		"email": email
+	})
+	.then(function(response) {
+		wsTree.refresh();
+		return response.data;
+	});
 }
-GitService.prototype.pushProject = function(wsTree, workspace, project, commitMessage, username, password, email, branch){
+GitService.prototype.pushProject = function(wsTree, workspace, project, username, password, email, branch){
 	var url = new UriBuilder().path(this.gitServiceUrl.split('/')).path(workspace).path(project).path("push").build();
 	return this.$http.post(url, {
-			"commitMessage": commitMessage,
-			"username": username,
-			"password": btoa(password),
-			"email": email,
-			"branch": branch,
-			"autoAdd": true,
-			"autoCommit": true
-			})
-			.then(function(response){
-				wsTree.refresh();
-				return response.data;
-			});
+		"username": username,
+		"password": btoa(password),
+		"email": email,
+		"branch": branch,
+	})
+	.then(function(response) {
+		wsTree.refresh();
+		return response.data;
+	});
 }
 GitService.prototype.resetProject = function(wsTree, workspace, project, username, password, branch){
 	var url = new UriBuilder().path(this.gitServiceUrl.split('/')).path(workspace).path(project).path("reset").build();
 	return this.$http.post(url, {
-			"username": username,
-			"password": btoa(password),
-			"branch": branch})
-			.then(function(response){
-				wsTree.refresh();
-				return response.data;
-			});
+		"username": username,
+		"password": btoa(password),
+		"branch": branch
+	})
+	.then(function(response){
+		wsTree.refresh();
+		return response.data;
+	});
 }
 GitService.prototype.shareProject = function(wsTree, workspace, project, repository, branch, commitMessage, username, password, email){
 	var url = new UriBuilder().path(this.gitServiceUrl.split('/')).path(workspace).path(project).path("share").build();
 	return this.$http.post(url, {
-			"project": project,
-			"repository": repository,
-			"branch": branch,
-			"commitMessage": commitMessage,
-			"username": username,
-			"password": btoa(password),
-			"email": email,
+		"project": project,
+		"repository": repository,
+		"branch": branch,
+		"commitMessage": commitMessage,
+		"username": username,
+		"password": btoa(password),
+		"email": email,
 	})
-			.then(function(response){
-				wsTree.refresh();
-				return response.data;
-			});
+	.then(function(response){
+		wsTree.refresh();
+		return response.data;
+	});
 }
 GitService.prototype.checkoutBranch = function(wsTree, workspace, project, branch, username, password){
 	var url = new UriBuilder().path(this.gitServiceUrl.split('/')).path(workspace).path(project).path("checkout").build();
 	return this.$http.post(url, {
-			"project": project,
-			"branch": branch,
-			"username": username,
-			"password": btoa(password)
+		"project": project,
+		"branch": branch,
+		"username": username,
+		"password": btoa(password)
 	})
-			.then(function(response){
-				wsTree.refresh();
-				return response.data;
-			});
+	.then(function(response){
+		wsTree.refresh();
+		return response.data;
+	});
 }
 GitService.prototype.commitProject = function(wsTree, workspace, project, commitMessage, username, password, email, branch){
 	var url = new UriBuilder().path(this.gitServiceUrl.split('/')).path(workspace).path(project).path("commit").build();
 	return this.$http.post(url, {
-			"commitMessage": commitMessage,
-			"username": username,
-			"password": btoa(password),
-			"email": email,
-			"branch": branch
-			})
-			.then(function(response){
-				wsTree.refresh();
-				return response.data;
-			});
+		"commitMessage": commitMessage,
+		"username": username,
+		"password": btoa(password),
+		"email": email,
+		"branch": branch
+	})
+	.then(function(response){
+		wsTree.refresh();
+		return response.data;
+	});
 }
 
 /**
@@ -794,11 +792,11 @@ angular.module('workspace', ['workspace.config', 'ngAnimate', 'ngSanitize', 'ui.
 	};
 	
 	this.okPushAll = function() {
-		gitService.pushAllProjects(this.wsTree, this.selectedWorkspace, this.commitMessage, this.username, this.password, this.email);
+		gitService.pushAllProjects(this.wsTree, this.selectedWorkspace, this.username, this.password, this.email);
 	};
 
 	this.okPush = function() {
-		gitService.pushProject(this.wsTree, this.selectedWorkspace, this.selectedProject, this.commitMessage, this.username, this.password, this.email, this.branch);
+		gitService.pushProject(this.wsTree, this.selectedWorkspace, this.selectedProject, this.username, this.password, this.email, this.branch);
 	};
 	
 	this.okReset = function() {
