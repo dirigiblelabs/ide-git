@@ -163,6 +163,28 @@ var WorkspaceTreeAdapter = function($http, treeConfig, workspaceSvc, gitService,
 	this.$http = $http;
 	this.$messageHub = $messageHub;
 
+	this.mapWorkingDir = function(rootFolder) {
+		let workingDir = {
+			text: rootFolder.name,
+			type: "folder",
+			icon: "fa fa-folder-o",
+			children: []
+		};
+		for (let i = 0; i < rootFolder.folders.length; i ++) {
+			let folder = rootFolder.folders[i];
+			workingDir.children.push(this.mapWorkingDir(folder));
+		}
+		for (let i = 0; i < rootFolder.files.length; i ++) {
+			let file = rootFolder.files[i];
+			workingDir.children.push({
+				text: file.name,
+				type: "file",
+				icon: "fa fa-file-o"
+			});
+		}
+		return workingDir;
+	};
+
 	this._buildTreeNode = function(f){
 		var children = [];
 		// if(f.type=='folder' || f.type=='project'){
@@ -170,9 +192,26 @@ var WorkspaceTreeAdapter = function($http, treeConfig, workspaceSvc, gitService,
 			// children = f.folders.map(this._buildTreeNode.bind(this));
 			// var _files = f.files.map(this._buildTreeNode.bind(this))
 			// children = children.concat(_files);
+			
+			let workingDir = [];
+			for (let i = 0; i < f.folders.length; i ++) {
+				let folder = f.folders[i];
+				workingDir.push(this.mapWorkingDir(folder));
+			}
+
+			for (let i = 0; i < f.files.length; i ++) {
+				let file = f.files[i];
+				workingDir.push({
+					text: file.name,
+					type: "file",
+					icon: "fa fa-file-o"
+				});
+			}
+
 			children = [
 				{text:"local", type: "local", "icon": "fa fa-check-circle-o", children: ['Loading local branches...']},
 				{text:"remote", type: "remote", "icon": "fa fa-circle-o", children: ['Loading remote branches...']},
+				{text:"working tree", type: "working-tree", "icon": "fa fa-clone", children: workingDir}
 			];
 		}
 		var icon;
@@ -339,30 +378,33 @@ WorkspaceTreeAdapter.prototype.refresh = function(node, keepState){
 	}
 	return this.gitService.load(resourcepath)
 			.then(function(_data){
-				var data = [];
-				if(_data.type == 'workspace'){
-					data = _data.projects;
-				} else if(_data.type == 'folder' || _data.type == 'project'){
-					data = [_data];
-				}
-				
+				var data = _data;
+				// var data = [];
+				// if(_data.type == 'workspace'){
+				// 	data = _data.projects;
+				// } else if(_data.type == 'folder' || _data.type == 'project'){
+				// 	data = [_data];
+				// }
+
 				data = data.map(this._buildTreeNode.bind(this));
 				
-				if(!this.jstree.settings.core.data || _data.type === 'workspace')
-					this.jstree.settings.core.data = data;
-				else{
-					//find and replace the loaded node
-					var self  = this;
-					this.jstree.settings.core.data = this.jstree.settings.core.data.map(function(node){
-						data.forEach(function(_node, replacement){
-							if(self._fnr(_node, replacement))
-								return;
-						}.bind(self, node));
-						return node;
-					});
-				}
-				if(!keepState)
-					this.jstree.refresh();
+				this.jstree.settings.core.data = data;
+				this.jstree.refresh();
+				// if(!this.jstree.settings.core.data || _data.type === 'workspace')
+				// 	this.jstree.settings.core.data = data;
+				// else{
+				// 	//find and replace the loaded node
+				// 	var self  = this;
+				// 	this.jstree.settings.core.data = this.jstree.settings.core.data.map(function(node){
+				// 		data.forEach(function(_node, replacement){
+				// 			if(self._fnr(_node, replacement))
+				// 				return;
+				// 		}.bind(self, node));
+				// 		return node;
+				// 	});
+				// }
+				// if(!keepState)
+				// 	this.jstree.refresh();
 			}.bind(this));
 };
 WorkspaceTreeAdapter.prototype.pull = function(resource){
