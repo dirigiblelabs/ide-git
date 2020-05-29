@@ -346,6 +346,10 @@ WorkspaceTreeAdapter.prototype.init = function(containerEl, workspaceName, works
 		workspaceController.selectedProject = (data.type === 'project') ? data.name : null;
 		$('#reset').click();
 	}.bind(this))
+	.on('jstree.workspace.delete', function (e, data) {		
+		workspaceController.selectedProject = (data.type === 'project') ? data.name : null;
+		$('#delete').click();
+	}.bind(this))
 	.on('jstree.workspace.share', function (e, data) {		
 		workspaceController.selectedProject = (data.type === 'project') ? data.name : null;
 		$('#share').click();
@@ -410,7 +414,7 @@ WorkspaceTreeAdapter.prototype.refresh = function(node, keepState){
 				// }
 
 				data = data.map(this._buildTreeNode.bind(this));
-				
+
 				this.jstree.settings.core.data = data;
 				this.jstree.refresh();
 				// if(!this.jstree.settings.core.data || _data.type === 'workspace')
@@ -551,13 +555,17 @@ GitService.prototype.pushProject = function(wsTree, workspace, project, username
 		return response.data;
 	});
 }
-GitService.prototype.resetProject = function(wsTree, workspace, project, username, password, branch){
+GitService.prototype.resetProject = function(wsTree, workspace, project){
 	var url = new UriBuilder().path(this.gitServiceUrl.split('/')).path(workspace).path(project).path("reset").build();
-	return this.$http.post(url, {
-		"username": username,
-		"password": btoa(password),
-		"branch": branch
-	})
+	return this.$http.post(url, {})
+	.then(function(response){
+		wsTree.refresh();
+		return response.data;
+	});
+}
+GitService.prototype.deleteRepository = function(wsTree, workspace, repositoryName){
+	var url = new UriBuilder().path(this.gitServiceUrl.split('/')).path(workspace).path(repositoryName).path("delete").build();
+	return this.$http.delete(url)
 	.then(function(response){
 		wsTree.refresh();
 		return response.data;
@@ -771,6 +779,15 @@ angular.module('workspace', ['workspace.config', 'ngAnimate', 'ngSanitize', 'ui.
 								tree.element.trigger('jstree.workspace.reset', [node.original._file]);
 							}.bind(this)
 						};
+						ctxmenu.delete = {
+							"separator_before": true,
+							"label": "Delete",
+							"action": function(data){
+								var tree = $.jstree.reference(data.reference);
+								var node = tree.get_node(data.reference);
+								tree.element.trigger('jstree.workspace.delete', [node.original._file]);
+							}.bind(this)
+						};
 					} else {
 						ctxmenu.share = {
 							"separator_before": false,
@@ -871,7 +888,11 @@ angular.module('workspace', ['workspace.config', 'ngAnimate', 'ngSanitize', 'ui.
 	this.okReset = function() {
 		gitService.resetProject(this.wsTree, this.selectedWorkspace, this.selectedProject, this.username, this.password, this.branch);
 	};
-	
+
+	this.okDelete = function() {
+		gitService.deleteRepository(this.wsTree, this.selectedWorkspace, this.selectedProject);
+	};
+
 	this.okShare = function() {
 		gitService.shareProject(this.wsTree, this.selectedWorkspace, this.selectedProject, this.repository, this.branch, this.commitMessage, this.username, this.password, this.email);
 	};
