@@ -382,7 +382,7 @@ WorkspaceTreeAdapter.prototype.clickNode = function(node){
 		let projectName = node.original.projectName;
 		let projectPath = projectName + "/";
 		let path = node.original.path;
-		let fileName = path.substring(path.lastIndexOf(projectPath) + projectPath.length);
+		let fileName = path.substring(path.indexOf(projectPath) + projectPath.length);
 		let isGit = node.original.isGit;
 		this.$messageHub.announceRepositoryFileSelected(this.workspaceName, projectName, isGit, fileName)
 	}
