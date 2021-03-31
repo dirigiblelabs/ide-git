@@ -480,10 +480,11 @@ WorkspaceTreeAdapter.prototype.commit = function(resource){
 /**
  * Git Service API delegate
  */
-var GitService = function($http, gitServiceUrl, treeCfg){
+var GitService = function($http, $messageHub, gitServiceUrl, treeCfg){
 	this.gitServiceUrl = gitServiceUrl;
 	this.typeMapping = treeCfg['types'];
 	this.$http = $http;
+	this.$messageHub = $messageHub;
 }
 GitService.prototype.load = function(wsResourcePath){
 	var url = new UriBuilder().path(this.gitServiceUrl.split('/')).path(wsResourcePath.split('/')).build();
@@ -522,6 +523,7 @@ GitService.prototype.pullAllProjects = function(wsTree, workspace, username, pas
 	});
 }
 GitService.prototype.pullProject = function(wsTree, workspace, project, username, password, branch){
+	var messageHub = this.$messageHub;
     var url = new UriBuilder().path(this.gitServiceUrl.split('/')).path(workspace).path(project).path("pull").build();
 	return this.$http.post(url, {
 		"publish": true,
@@ -530,6 +532,9 @@ GitService.prototype.pullProject = function(wsTree, workspace, project, username
 		"branch": branch
 	})
 	.then(function(response) {
+		// TODO: Notifications/Alerts
+		// messageHub.announceNotification("Error", "My Error");
+		// messageHub.announceNotification("Error", "My Error", "error");
 		wsTree.refresh();
 		return response.data;
 	});
@@ -700,6 +705,15 @@ angular.module('workspace', ['workspace.config', 'ngAnimate', 'ngSanitize', 'ui.
 	var announceRepositoryFileSelected = function(workspace, project, isGitProject, file){
 		messageHub.post({data: {"workspace": workspace, "project": project, "isGitProject": isGitProject, "file": file}}, 'git.repository.file.selected');
 	};
+	var announceNotification = function(title, message, type){
+		messageHub.post({
+			data: {
+				title: title,
+				message: message,
+				type: type
+			}
+		}, 'ide.notification');
+	};
 	return {
 		message: message,
 		announceFileSelected: announceFileSelected,
@@ -708,6 +722,7 @@ angular.module('workspace', ['workspace.config', 'ngAnimate', 'ngSanitize', 'ui.
 		announcePull: announcePull,
 		announceRepositorySelected: announceRepositorySelected,
 		announceRepositoryFileSelected: announceRepositoryFileSelected,
+		announceNotification: announceNotification,
 		on: function(evt, cb){
 			messageHub.subscribe(cb, evt);
 		}
@@ -838,8 +853,8 @@ angular.module('workspace', ['workspace.config', 'ngAnimate', 'ngSanitize', 'ui.
 		}
 	}
 }])
-.factory('gitService', ['$http', 'GIT_SVC_URL', '$treeConfig', function($http, GIT_SVC_URL, $treeConfig){
-	return new GitService($http, GIT_SVC_URL, $treeConfig);
+.factory('gitService', ['$http', '$messageHub','GIT_SVC_URL', '$treeConfig', function($http, $messageHub, GIT_SVC_URL, $treeConfig){
+	return new GitService($http, $messageHub, GIT_SVC_URL, $treeConfig);
 }])
 .factory('envService', ['$http', 'ENV_SVC_URL', function($http, ENV_SVC_URL){
 	return new EnvService($http, ENV_SVC_URL);
