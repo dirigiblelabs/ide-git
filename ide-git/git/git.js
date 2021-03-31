@@ -487,13 +487,18 @@ var GitService = function($http, $messageHub, gitServiceUrl, treeCfg){
 	this.$messageHub = $messageHub;
 }
 GitService.prototype.load = function(wsResourcePath){
+	var messageHub = this.$messageHub;
 	var url = new UriBuilder().path(this.gitServiceUrl.split('/')).path(wsResourcePath.split('/')).build();
 	return this.$http.get(url, {headers: { 'describe': 'application/json'}})
-			.then(function(response){
-				return response.data;
-			});
+		.then(function(response){
+			return response.data;
+		}, function (response) {
+			let errorMessage = JSON.parse(response.data.error).message;
+			messageHub.announceAlertError("Loading Git Repositories Error", errorMessage);
+		});
 }
 GitService.prototype.cloneProject = function(wsTree, workspace, repository, branch, username, password, projectName) {
+	var messageHub = this.$messageHub;
 	var gitBranch = branch ? branch : "";
 	var url = new UriBuilder().path(this.gitServiceUrl.split('/')).path(workspace).path("clone").build();
 	return this.$http.post(url, {
@@ -507,9 +512,14 @@ GitService.prototype.cloneProject = function(wsTree, workspace, repository, bran
 	.then(function(response) {
 		wsTree.refresh();
 		return response.data;
+	}, function (response) {
+		wsTree.refresh();
+		let errorMessage = JSON.parse(response.data.error).message;
+		messageHub.announceAlertError("Git Clone Error", errorMessage);
 	});
 }
 GitService.prototype.pullAllProjects = function(wsTree, workspace, username, password, branch){
+	var messageHub = this.$messageHub;
     var url = new UriBuilder().path(this.gitServiceUrl.split('/')).path(workspace).path("pull").build();
 	return this.$http.post(url, {
 		"publish": true,
@@ -520,6 +530,10 @@ GitService.prototype.pullAllProjects = function(wsTree, workspace, username, pas
 	.then(function(response) {
 		wsTree.refresh();
 		return response.data;
+	}, function (response) {
+		wsTree.refresh();
+		let errorMessage = JSON.parse(response.data.error).message;
+		messageHub.announceAlertError("Git Pull All Projects Error", errorMessage, "error");
 	});
 }
 GitService.prototype.pullProject = function(wsTree, workspace, project, username, password, branch){
@@ -532,14 +546,16 @@ GitService.prototype.pullProject = function(wsTree, workspace, project, username
 		"branch": branch
 	})
 	.then(function(response) {
-		// TODO: Notifications/Alerts
-		// messageHub.announceNotification("Error", "My Error");
-		// messageHub.announceNotification("Error", "My Error", "error");
 		wsTree.refresh();
 		return response.data;
+	}, function (response) {
+		wsTree.refresh();
+		let errorMessage = JSON.parse(response.data.error).message;
+		messageHub.announceAlertError("Git Pull Project Error", errorMessage, "error");
 	});
 }
 GitService.prototype.pushAllProjects = function(wsTree, workspace, username, password, email){
+	var messageHub = this.$messageHub;
 	var url = new UriBuilder().path(this.gitServiceUrl.split('/')).path(workspace).path("push").build();
 	return this.$http.post(url, {
 		"username": username,
@@ -549,9 +565,14 @@ GitService.prototype.pushAllProjects = function(wsTree, workspace, username, pas
 	.then(function(response) {
 		wsTree.refresh();
 		return response.data;
+	}, function (response) {
+		wsTree.refresh();
+		let errorMessage = JSON.parse(response.data.error).message;
+		messageHub.announceAlertError("Git Push All Projects Error", errorMessage);
 	});
 }
 GitService.prototype.pushProject = function(wsTree, workspace, project, username, password, email, branch){
+	var messageHub = this.$messageHub;
 	var url = new UriBuilder().path(this.gitServiceUrl.split('/')).path(workspace).path(project).path("push").build();
 	return this.$http.post(url, {
 		"username": username,
@@ -562,33 +583,53 @@ GitService.prototype.pushProject = function(wsTree, workspace, project, username
 	.then(function(response) {
 		wsTree.refresh();
 		return response.data;
+	}, function (response) {
+		wsTree.refresh();
+		let errorMessage = JSON.parse(response.data.error).message;
+		messageHub.announceAlertError("Git Push Project Error", errorMessage);
 	});
 }
 GitService.prototype.resetProject = function(wsTree, workspace, project){
+	var messageHub = this.$messageHub;
 	var url = new UriBuilder().path(this.gitServiceUrl.split('/')).path(workspace).path(project).path("reset").build();
 	return this.$http.post(url, {})
 	.then(function(response){
 		wsTree.refresh();
 		return response.data;
+	}, function (response) {
+		wsTree.refresh();
+		let errorMessage = JSON.parse(response.data.error).message;
+		messageHub.announceAlertError("Git Reset Project Error", errorMessage);
 	});
 }
 GitService.prototype.importProjects = function(wsTree, workspace, repository){
+	var messageHub = this.$messageHub;
 	var url = new UriBuilder().path(this.gitServiceUrl.split('/')).path(workspace).path(repository).path("import").build();
 	return this.$http.post(url, {})
 	.then(function(response){
 		wsTree.refresh();
 		return response.data;
+	}, function (response) {
+		wsTree.refresh();
+		let errorMessage = JSON.parse(response.data.error).message;
+		messageHub.announceAlertError("Git Import Projects Error", errorMessage);
 	});
 }
 GitService.prototype.deleteRepository = function(wsTree, workspace, repositoryName){
+	var messageHub = this.$messageHub;
 	var url = new UriBuilder().path(this.gitServiceUrl.split('/')).path(workspace).path(repositoryName).path("delete").build();
 	return this.$http.delete(url)
 	.then(function(response){
 		wsTree.refresh();
 		return response.data;
+	}, function (response) {
+		wsTree.refresh();
+		let errorMessage = JSON.parse(response.data.error).message;
+		messageHub.announceAlertError("Git Delete Project Error", errorMessage);
 	});
 }
 GitService.prototype.shareProject = function(wsTree, workspace, project, repository, branch, commitMessage, username, password, email){
+	var messageHub = this.$messageHub;
 	var url = new UriBuilder().path(this.gitServiceUrl.split('/')).path(workspace).path(project).path("share").build();
 	return this.$http.post(url, {
 		"project": project,
@@ -602,9 +643,14 @@ GitService.prototype.shareProject = function(wsTree, workspace, project, reposit
 	.then(function(response){
 		wsTree.refresh();
 		return response.data;
+	}, function (response) {
+		wsTree.refresh();
+		let errorMessage = JSON.parse(response.data.error).message;
+		messageHub.announceAlertError("Git Share Project Error", errorMessage);
 	});
 }
 GitService.prototype.checkoutBranch = function(wsTree, workspace, project, branch, username, password){
+	var messageHub = this.$messageHub;
 	var url = new UriBuilder().path(this.gitServiceUrl.split('/')).path(workspace).path(project).path("checkout").build();
 	return this.$http.post(url, {
 		"project": project,
@@ -615,9 +661,14 @@ GitService.prototype.checkoutBranch = function(wsTree, workspace, project, branc
 	.then(function(response){
 		wsTree.refresh();
 		return response.data;
+	}, function (response) {
+		wsTree.refresh();
+		let errorMessage = JSON.parse(response.data.error).message;
+		messageHub.announceAlertError("Git Checkout Branch Error", errorMessage);
 	});
 }
 GitService.prototype.commitProject = function(wsTree, workspace, project, commitMessage, username, password, email, branch){
+	var messageHub = this.$messageHub;
 	var url = new UriBuilder().path(this.gitServiceUrl.split('/')).path(workspace).path(project).path("commit").build();
 	return this.$http.post(url, {
 		"commitMessage": commitMessage,
@@ -629,6 +680,10 @@ GitService.prototype.commitProject = function(wsTree, workspace, project, commit
 	.then(function(response){
 		wsTree.refresh();
 		return response.data;
+	}, function (response) {
+		wsTree.refresh();
+		let errorMessage = JSON.parse(response.data.error).message;
+		messageHub.announceAlertError("Git Commit Error", errorMessage);
 	});
 }
 
@@ -705,14 +760,26 @@ angular.module('workspace', ['workspace.config', 'ngAnimate', 'ngSanitize', 'ui.
 	var announceRepositoryFileSelected = function(workspace, project, isGitProject, file){
 		messageHub.post({data: {"workspace": workspace, "project": project, "isGitProject": isGitProject, "file": file}}, 'git.repository.file.selected');
 	};
-	var announceNotification = function(title, message, type){
+	var announceAlert = function(title, message, type) {
 		messageHub.post({
 			data: {
 				title: title,
 				message: message,
 				type: type
 			}
-		}, 'ide.notification');
+		}, 'ide.alert');
+	};
+	var announceAlertSuccess = function(title, message) {
+		announceAlert(title, message, "success");
+	};
+	var announceAlertInfo = function(title, message) {
+		announceAlert(title, message, "info");
+	};
+	var announceAlertWarning = function(title, message) {
+		announceAlert(title, message, "warning");
+	};
+	var announceAlertError = function(title, message) {
+		announceAlert(title, message, "error");
 	};
 	return {
 		message: message,
@@ -722,7 +789,11 @@ angular.module('workspace', ['workspace.config', 'ngAnimate', 'ngSanitize', 'ui.
 		announcePull: announcePull,
 		announceRepositorySelected: announceRepositorySelected,
 		announceRepositoryFileSelected: announceRepositoryFileSelected,
-		announceNotification: announceNotification,
+		announceAlert: announceAlert,
+		announceAlertSuccess: announceAlertSuccess,
+		announceAlertInfo: announceAlertInfo,
+		announceAlertWarning: announceAlertWarning,
+		announceAlertError: announceAlertError,
 		on: function(evt, cb){
 			messageHub.subscribe(cb, evt);
 		}
