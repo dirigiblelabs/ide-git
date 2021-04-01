@@ -233,6 +233,9 @@ var stagingApp = angular.module('stagingApp', ['git.config', 'ngAnimate', 'ngSan
 		this.scope = $scope;
 
 		this.okCommitAndPushClicked = function () {
+			if (this.commitMessage === undefined || this.commitMessage === "") {
+				this.commitMessage = null;
+			}
 			gitService.commit(this.selectedWorkspace, this.selectedProject, this.commitMessage, this.username, this.password, this.email, this.branch)
 				.then(function () {
 					gitService.push(this.selectedWorkspace, this.selectedProject, this.commitMessage, this.username, this.password, this.email, this.branch)
@@ -245,6 +248,9 @@ var stagingApp = angular.module('stagingApp', ['git.config', 'ngAnimate', 'ngSan
 		};
 
 		this.okCommitClicked = function () {
+			if (this.commitMessage === undefined || this.commitMessage === "") {
+				this.commitMessage = null;
+			}
 			gitService.commit(this.selectedWorkspace, this.selectedProject, this.commitMessage, this.username, this.password, this.email, this.branch)
 				.then(function () {
 					this.commitMessage = "";
