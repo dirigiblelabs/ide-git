@@ -358,7 +358,7 @@ WorkspaceTreeAdapter.prototype.init = function (containerEl, workspaceName, work
 		.on('jstree.workspace.delete', function (e, data) {
 			workspaceController.selectedProjectData = (data.type === 'project') ? data : null;
 			workspaceController.selectedProject = (data.type === 'project') ? data.name : null;
-			$('#delete').click();
+			workspaceController.showDeleteDialog();
 		}.bind(this))
 		.on('jstree.workspace.share', function (e, data) {
 			workspaceController.selectedProject = (data.type === 'project') ? data.name : null;
@@ -959,14 +959,14 @@ angular.module('workspace', ['workspace.config', 'ngAnimate', 'ngSanitize', 'ui.
 	.factory('workspaceTreeAdapter', ['$http', '$treeConfig', 'workspaceService', 'gitService', '$messageHub', function ($http, $treeConfig, WorkspaceService, GitService, $messageHub) {
 		return new WorkspaceTreeAdapter($http, $treeConfig, WorkspaceService, GitService, $messageHub);
 	}])
-	.controller('WorkspaceController', ['workspaceService', 'workspaceTreeAdapter', 'gitService', 'publishService', 'envService', '$messageHub', '$http', function (workspaceService, workspaceTreeAdapter, gitService, publishService, envService, $messageHub, $http) {
+	.controller('WorkspaceController', ['workspaceService', 'workspaceTreeAdapter', 'gitService', 'publishService', 'envService', '$messageHub', '$http', '$scope', function (workspaceService, workspaceTreeAdapter, gitService, publishService, envService, $messageHub, $http, $scope) {
 
 		this.wsTree;
 		this.workspaces;
 		this.selectedWorkspace;
 		this.gitService = gitService;
 		this.http = $http;
-		this.unpublishOnDelete = true;
+		$scope.unpublishOnDelete = true;
 
 		workspaceService.listWorkspaceNames()
 			.then(function (workspaceNames) {
@@ -980,6 +980,12 @@ angular.module('workspace', ['workspace.config', 'ngAnimate', 'ngSanitize', 'ui.
 					this.workspaceSelected();
 				}
 			}.bind(this));
+
+		this.showDeleteDialog = function () {
+			$scope.unpublishOnDelete = true;
+			$scope.$apply(); // Because of JQuery and the bootstrap modal
+			$('#delete').click();
+		}
 
 		this.workspaceSelected = function () {
 			if (this.wsTree) {
@@ -1025,7 +1031,7 @@ angular.module('workspace', ['workspace.config', 'ngAnimate', 'ngSanitize', 'ui.
 		};
 
 		this.okDelete = function () {
-			if (this.unpublishOnDelete) {
+			if ($scope.unpublishOnDelete) {
 				for (let i = 0; i < this.selectedProjectData.folders.length; i++) {
 					let resourcePath = `/${this.selectedWorkspace}/${this.selectedProjectData.folders[i].name}`;
 					publishService.unpublish(resourcePath)
