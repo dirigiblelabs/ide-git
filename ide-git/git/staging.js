@@ -265,6 +265,7 @@ let stagingApp = angular.module('stagingApp', ['git.config', 'ngAnimate', 'ngSan
 					gitService.push($scope.selectedWorkspace, $scope.selectedProject, $scope.commitMessage, $scope.username, $scope.password, $scope.email, $scope.branch)
 						.then(function () {
 							$scope.commitMessage = "";
+							$messageHub.message("diff.view.clear");
 							$scope.refresh();
 						}.bind(this));
 				}.bind(this));
@@ -278,6 +279,7 @@ let stagingApp = angular.module('stagingApp', ['git.config', 'ngAnimate', 'ngSan
 			gitService.commit($scope.selectedWorkspace, $scope.selectedProject, $scope.commitMessage, $scope.username, $scope.password, $scope.email, $scope.branch)
 				.then(function () {
 					$scope.commitMessage = "";
+					$messageHub.message("diff.view.clear");
 					$scope.refresh();
 				}.bind(this));
 		};
