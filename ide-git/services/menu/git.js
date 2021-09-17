@@ -8,20 +8,19 @@
  * Contributors:
  *   SAP - initial API and implementation
  */
-exports.getMenu = function() {
-	var menu = {
-			"name":"Git",
-			"link":"#",
-			"order":"100",
-			"onClick":"alert('Git has been clicked')",
-			"items":[
-				{
-					"name":"Properties",
-					"link":"#",
-					"order":"110",
-					"onClick":"alert('Properties has been clicked')"
-				}
-			]
-		};
-	return menu;
+exports.getMenu = function () {
+	return {
+		"name": "Git",
+		"link": "#",
+		"order": "100",
+		"onClick": "alert('Git has been clicked')",
+		"items": [
+			{
+				"name": "Properties",
+				"link": "#",
+				"order": "110",
+				"onClick": "alert('Properties has been clicked')"
+			}
+		]
+	};
 }

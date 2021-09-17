@@ -8,15 +8,15 @@
  * Contributors:
  *   SAP - initial API and implementation
  */
-var rs = require('http/v4/rs');
-var configurations = require('core/v4/configurations');
+let rs = require('http/v4/rs');
+let configurations = require('core/v4/configurations');
 
 rs.service()
 	.resource('')
-		.post(function(ctx, request) {
-			var data = request.getJSON();
-			for (var i = 0; i < data.env.length; i ++) {
-				configurations.set(data.env[i].key, data.env[i].value);
-			}
-		})
-.execute();
+	.post(function (ctx, request) {
+		let data = request.getJSON();
+		for (let i = 0; i < data.env.length; i++) {
+			configurations.set(data.env[i].key, data.env[i].value);
+		}
+	})
+	.execute();

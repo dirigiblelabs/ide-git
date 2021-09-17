@@ -8,18 +8,18 @@
  * Contributors:
  *   SAP - initial API and implementation
  */
-var extensions = require('core/v4/extensions');
-var response = require('http/v4/response');
+let extensions = require('core/v4/extensions');
+let response = require('http/v4/response');
 
-var mainmenu = [];
-var menuExtensions = extensions.getExtensions('ide-git-menu');
-for (var i=0; i<menuExtensions.length; i++) {
-    var module = menuExtensions[i];
+let mainmenu = [];
+let menuExtensions = extensions.getExtensions('ide-git-menu');
+for (let i = 0; i < menuExtensions.length; i++) {
+    let module = menuExtensions[i];
     menuExtension = require(module);
-    var menu = menuExtension.getMenu();
+    let menu = menuExtension.getMenu();
     mainmenu.push(menu);
 }
-mainmenu.sort(function(p, n) {
-	return (parseInt(p.order) - parseInt(n.order));
+mainmenu.sort(function (p, n) {
+    return (parseInt(p.order) - parseInt(n.order));
 });
 response.println(JSON.stringify(mainmenu));
