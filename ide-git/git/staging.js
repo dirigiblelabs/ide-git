@@ -93,6 +93,7 @@ GitService.prototype.push = function (workspace, project, commitMessage, usernam
 				messageHub.message('action.complete', 'clone.project');
 				let errorMessage = JSON.parse(response.data.error).message;
 				messageHub.announceAlertError('Git Push Error', errorMessage);
+				console.log('GIT SERVICE ERROR RESULT', response);
 				return response;
 			}
 		);
@@ -279,7 +280,6 @@ let stagingApp = angular
 			$scope.selectedStagedFiles = [];
 			$scope.commitMessage;
 			$scope.selectedProject;
-			$scope.pushErrorProjects = [];
 			$scope.selectedWorkspace;
 			$scope.username;
 			$scope.password;
@@ -348,9 +348,6 @@ let stagingApp = angular
 					.then(
 						function (response) {
 							if (loadingOverview) loadingOverview.classList.add('hide');
-							if (response.data && response.data.error || response.status === 500) {
-								$scope.pushErrorProjects.push($scope.selectedProject);
-							}
 							$scope.commitMessage = '';
 							$messageHub.message('diff.view.clear');
 							$scope.refresh();
