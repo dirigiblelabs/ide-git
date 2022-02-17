@@ -131,6 +131,22 @@ GitService.prototype.getStagedFiles = function (workspace, project) {
 		}
 	);
 };
+
+GitService.prototype.getOriginUrls = function (workspace, project) {
+	let messageHub = this.$messageHub;
+	let url = new UriBuilder().path(this.gitServiceUrl.split('/')).path(workspace).path(project).path('origin-urls').build();
+
+	return this.$http.get(url, {}).then(
+		function (response) {
+			return response.data;
+		},
+		function (response) {
+			let errorMessage = JSON.parse(response.data.error).message;
+			console.log('Git Origin Error', errorMessage);
+		}
+	);
+};
+
 GitService.prototype.addFiles = function (workspace, project, files) {
 	let messageHub = this.$messageHub;
 	let url = new UriBuilder().path(this.gitServiceUrl.split('/')).path(workspace).path(project).path('add').build();
@@ -285,6 +301,8 @@ let stagingApp = angular
 			$scope.password;
 			$scope.email;
 			$scope.branch;
+			$scope.fetchURL = '';
+			$scope.pushURL = '';
 			$scope.loaderOn = false;
 
 			let loadingOverview = document.getElementsByClassName('loading-overview')[0];
@@ -401,6 +419,13 @@ let stagingApp = angular
 						$scope.stagedFiles.map((e) => {
 							e.label = typeIcon(e.type) + ' ' + e.path;
 						});
+					}.bind(this)
+				);
+				gitService.getOriginUrls($scope.selectedWorkspace, $scope.selectedProject).then(
+					function (res) {
+						console.log(res)
+						$scope.fetchURL = res.fetchUrl;
+						$scope.pushURL = res.pushUrl;
 					}.bind(this)
 				);
 			};
