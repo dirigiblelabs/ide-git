@@ -172,10 +172,11 @@
                                 <div class="form-group row" ng-show="editFetchURL">
                                     <label class="col-sm-2 col-form-label">Fetch URL:</label>
                                     <span class="col-sm-9 col-form-label">
-                                        <input class="form-control row" type="text" placeholder="" ng-model="fetchURL"
-                                            required="required" style="min-width: 100%!important;"></span>
+                                        <input class="form-control row" type="text" placeholder=""
+                                            ng-model="fetchURLeditable" required="required"
+                                            style="min-width: 100%!important;"></span>
                                     <button type="button" class="btn btn-default btn-top col-sm-1"
-                                        ng-click="editFetchURLclicked()"><i class="fa fa-save"></i></button>
+                                        ng-click="okSaveFetchURLclicked()"><i class="fa fa-save"></i></button>
                                 </div>
                                 <div class="row" ng-hide="editPushURL">
                                     <span class="col-sm-2 col-form-label">Push URL: </span>
@@ -186,10 +187,11 @@
                                 <div class="form-group row" ng-show="editPushURL">
                                     <label class="col-sm-2 col-form-label">Push URL:</label>
                                     <span class="col-sm-9 col-form-label">
-                                        <input class="form-control row" type="text" placeholder="" ng-model="pushURL"
-                                            required="required" style="min-width: 100%!important;"></span>
+                                        <input class="form-control row" type="text" placeholder=""
+                                            ng-model="pushURLeditable" required="required"
+                                            style="min-width: 100%!important;"></span>
                                     <button type="button" class="btn btn-default btn-top col-sm-1"
-                                        ng-click="editPushURLclicked()"><i class="fa fa-save"></i></button>
+                                        ng-click="okSavePushURLclicked()"><i class="fa fa-save"></i></button>
                                 </div>
                             </div>
                     </div>

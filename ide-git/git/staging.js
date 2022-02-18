@@ -147,6 +147,18 @@ GitService.prototype.getOriginUrls = function (workspace, project) {
 	);
 };
 
+GitService.prototype.setFetchUrl = function (workspace, project, url) {
+	let messageHub = this.$messageHub;
+	let requesturl = new UriBuilder().path(this.gitServiceUrl.split('/')).path(workspace).path(project).path('set-fetch-url').build();
+	let getparams = { params: { url: url } };
+
+	return this.$http.get(requesturl, getparams).then(
+		function (response) {
+			return response;
+		}
+	);
+};
+
 GitService.prototype.addFiles = function (workspace, project, files) {
 	let messageHub = this.$messageHub;
 	let url = new UriBuilder().path(this.gitServiceUrl.split('/')).path(workspace).path(project).path('add').build();
@@ -325,11 +337,31 @@ let stagingApp = angular
 			}
 
 			$scope.editFetchURLclicked = function () {
-				$scope.editFetchURL = !$scope.editFetchURL;
+				$scope.fetchURLeditable = $scope.fetchURL;
+				$scope.editFetchURL = true;
+			}
+			$scope.okSaveFetchURLclicked = function () {
+				let messageHub = $messageHub;
+				if (!$scope.fetchURLeditable) {
+					let errorMessage = 'URL must be specified!';
+					messageHub.announceAlertError('Git Fetch URL Error', errorMessage);
+					return;
+				}
+				gitService.setFetchUrl($scope.selectedWorkspace, $scope.selectedProject, $scope.fetchURLeditable).then(
+					function (res) {
+						console.log(res);
+					});
+
+				$scope.editFetchURL = false;
 			}
 
 			$scope.editPushURLclicked = function () {
-				$scope.editPushURL = !$scope.editPushURL;
+				$scope.pushURLeditable = $scope.pushURL;
+				$scope.editPushURL = true;
+			}
+
+			$scope.okSavePushURLclicked = function () {
+				$scope.editPushURL = false;
 			}
 
 			$scope.okCommitAndPushClicked = function () {
