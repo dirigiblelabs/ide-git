@@ -304,6 +304,8 @@ let stagingApp = angular
 			$scope.fetchURL = '';
 			$scope.pushURL = '';
 			$scope.loaderOn = false;
+			$scope.editFetchURL = false;
+			$scope.editPushURL = false;
 
 			let loadingOverview = document.getElementsByClassName('loading-overview')[0];
 			let loadingMessage = document.getElementsByClassName('loading-message')[0];
@@ -320,6 +322,14 @@ let stagingApp = angular
 
 			function typeIcon(i) {
 				return types[i];
+			}
+
+			$scope.editFetchURLclicked = function () {
+				$scope.editFetchURL = !$scope.editFetchURL;
+			}
+
+			$scope.editPushURLclicked = function () {
+				$scope.editPushURL = !$scope.editPushURL;
 			}
 
 			$scope.okCommitAndPushClicked = function () {
