@@ -122,8 +122,6 @@
                         </div>
                     </div>
                     <div class="col-sm-6">
-                        <p ng-show="selectedProject">Fetch URL: <strong>{{fetchURL}}</strong><br>
-                            Push URL: <strong>{{pushURL}}</strong></p>
                         <form class="form sticky-top">
                             <div style="height: 2em">
                                 <label>Commit Message:</label>
@@ -163,6 +161,8 @@
                                     ng-disabled="!selectedProject || !stagedFiles.length"><i class="fa fa-upload"></i>
                                     Commit & Push</button>
                             </div>
+                            <div class="row" ng-show="selectedProject">Fetch URL: <strong>{{fetchURL}}</strong></div>
+                            <div class="row" ng-show="selectedProject">Push URL: <strong>{{pushURL}}</strong></div>
                     </div>
                     </form>
                 </div>
