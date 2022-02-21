@@ -479,6 +479,8 @@ let stagingApp = angular
 					$scope.stagedFiles = [];
 					return;
 				}
+				$scope.editFetchURL = false;
+				$scope.editPushURL = false;
 				gitService.getUnstagedFiles($scope.selectedWorkspace, $scope.selectedProject).then(
 					function (files) {
 						$scope.unstagedFiles = files;

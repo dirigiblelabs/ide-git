@@ -16,13 +16,13 @@ let UriBuilder = function UriBuilder() {
 	this.pathSegments = [];
 	return this;
 };
-UriBuilder.prototype.path = function(_pathSegments) {
-	if (!Array.isArray(_pathSegments)) _pathSegments = [ _pathSegments ];
+UriBuilder.prototype.path = function (_pathSegments) {
+	if (!Array.isArray(_pathSegments)) _pathSegments = [_pathSegments];
 	_pathSegments = _pathSegments
-		.filter(function(segment) {
+		.filter(function (segment) {
 			return segment;
 		})
-		.map(function(segment) {
+		.map(function (segment) {
 			if (segment.length) {
 				if (segment.charAt(segment.length - 1) === '/') segment = segment.substring(0, segment.length - 2);
 				segment = encodeURIComponent(segment);
@@ -32,7 +32,7 @@ UriBuilder.prototype.path = function(_pathSegments) {
 	this.pathSegments = this.pathSegments.concat(_pathSegments);
 	return this;
 };
-UriBuilder.prototype.build = function(isBasePath = true) {
+UriBuilder.prototype.build = function (isBasePath = true) {
 	if (isBasePath) return '/' + this.pathSegments.join('/');
 	return this.pathSegments.join('/');
 };
@@ -40,13 +40,13 @@ UriBuilder.prototype.build = function(isBasePath = true) {
 /**
  * Workspace Service API delegate
  */
-let WorkspaceService = function($http, workspaceManagerServiceUrl, workspacesServiceUrl, treeCfg) {
+let WorkspaceService = function ($http, workspaceManagerServiceUrl, workspacesServiceUrl, treeCfg) {
 	this.workspaceManagerServiceUrl = workspaceManagerServiceUrl;
 	this.workspacesServiceUrl = workspacesServiceUrl;
 	this.typeMapping = treeCfg['types'];
 	this.$http = $http;
 
-	this.newFileName = function(name, type, siblingFilenames) {
+	this.newFileName = function (name, type, siblingFilenames) {
 		type = type || 'default';
 		//check for custom new file name template in the global configuration
 		if (type && this.typeMapping[type] && this.typeMapping[type].template_new_name) {
@@ -61,7 +61,7 @@ let WorkspaceService = function($http, workspaceManagerServiceUrl, workspacesSer
 			};
 			let tmpl = this.typeMapping[type].template_new_name;
 			let regex = new RegExp(Object.keys(parameters).join('|'), 'g');
-			let fName = tmpl.replace(regex, function(m) {
+			let fName = tmpl.replace(regex, function (m) {
 				return parameters[m] !== undefined ? parameters[m] : m;
 			});
 			name = fName.trim();
@@ -69,18 +69,18 @@ let WorkspaceService = function($http, workspaceManagerServiceUrl, workspacesSer
 		return name;
 	};
 
-	let startsWith = function(stringToTest, prefixToTest) {
+	let startsWith = function (stringToTest, prefixToTest) {
 		let startsWithRegEx = new RegExp('^' + prefixToTest);
 		let matches = stringToTest.match(startsWithRegEx);
 		return matches != null && matches.length > 0;
 	};
 
-	let strictInt = function(value) {
+	let strictInt = function (value) {
 		if (/^(\-|\+)?([0-9]+|Infinity)$/.test(value)) return Number(value);
 		return NaN;
 	};
 
-	let toInt = function(value) {
+	let toInt = function (value) {
 		if (value === undefined) return;
 		let _result = value.trim();
 		_result = strictInt(_result);
@@ -89,9 +89,9 @@ let WorkspaceService = function($http, workspaceManagerServiceUrl, workspacesSer
 	};
 
 	//processes an array of sibling string filenames to calculate the next incrmeent suffix segment
-	let nextIncrementSegment = function(filenames, filenameToMatch, nameIncrementRegex) {
+	let nextIncrementSegment = function (filenames, filenameToMatch, nameIncrementRegex) {
 		let maxIncrement = filenames
-			.map(function(siblingFilename) {
+			.map(function (siblingFilename) {
 				//find out incremented file name matches (such as {file-name} {i}.{extension} or {file-name}-{i}.{extension})
 				let incr = -2;
 				//in case we have a regex configured to find out the increment direclty, use it
@@ -132,22 +132,22 @@ let WorkspaceService = function($http, workspaceManagerServiceUrl, workspacesSer
 				}
 				return incr;
 			})
-			.sort(function(a, b) {
+			.sort(function (a, b) {
 				return a - b;
 			})
 			.pop();
 		return ++maxIncrement;
 	};
 };
-WorkspaceService.prototype.load = function(wsResourcePath) {
+WorkspaceService.prototype.load = function (wsResourcePath) {
 	let url = new UriBuilder().path(this.workspacesServiceUrl.split('/')).path(wsResourcePath.split('/')).build();
-	return this.$http.get(url, { headers: { describe: 'application/json' } }).then(function(response) {
+	return this.$http.get(url, { headers: { describe: 'application/json' } }).then(function (response) {
 		return response.data;
 	});
 };
-WorkspaceService.prototype.listWorkspaceNames = function() {
+WorkspaceService.prototype.listWorkspaceNames = function () {
 	let url = new UriBuilder().path(this.workspacesServiceUrl.split('/')).build();
-	return this.$http.get(url).then(function(response) {
+	return this.$http.get(url).then(function (response) {
 		return response.data;
 	});
 };
@@ -155,14 +155,14 @@ WorkspaceService.prototype.listWorkspaceNames = function() {
 /**
  * Workspace Tree Adapter mediating the workspace service REST api and the jst tree componet working with it
  */
-let WorkspaceTreeAdapter = function($http, treeConfig, workspaceSvc, gitService, $messageHub) {
+let WorkspaceTreeAdapter = function ($http, treeConfig, workspaceSvc, gitService, $messageHub) {
 	this.treeConfig = treeConfig;
 	this.gitService = gitService;
 	this.workspaceSvc = workspaceSvc;
 	this.$http = $http;
 	this.$messageHub = $messageHub;
 
-	this.mapWorkingDir = function(rootFolder, projectName) {
+	this.mapWorkingDir = function (rootFolder, projectName) {
 		let workingDir = {
 			text: rootFolder.name,
 			type: 'folder',
@@ -190,7 +190,7 @@ let WorkspaceTreeAdapter = function($http, treeConfig, workspaceSvc, gitService,
 		return workingDir;
 	};
 
-	this._buildTreeNode = function(f) {
+	this._buildTreeNode = function (f) {
 		let children = [];
 		// if(f.type=='folder' || f.type=='project'){
 		if (f.type == 'project' && f.git) {
@@ -222,9 +222,9 @@ let WorkspaceTreeAdapter = function($http, treeConfig, workspaceSvc, gitService,
 					text: 'local',
 					type: 'local',
 					icon: 'fa fa-check-circle-o',
-					children: [ 'Loading local branches...' ]
+					children: ['Loading local branches...']
 				},
-				{ text: 'remote', type: 'remote', icon: 'fa fa-circle-o', children: [ 'Loading remote branches...' ] },
+				{ text: 'remote', type: 'remote', icon: 'fa fa-circle-o', children: ['Loading remote branches...'] },
 				{
 					text: 'working tree',
 					type: 'working-tree',
@@ -251,10 +251,10 @@ let WorkspaceTreeAdapter = function($http, treeConfig, workspaceSvc, gitService,
 		};
 	};
 
-	this._fnr = function(node, replacement) {
+	this._fnr = function (node, replacement) {
 		if (node.children) {
 			let done;
-			node.children = node.children.map(function(c) {
+			node.children = node.children.map(function (c) {
 				if (!done && c._file.path === replacement._file.path) {
 					done = true;
 					return replacement;
@@ -263,7 +263,7 @@ let WorkspaceTreeAdapter = function($http, treeConfig, workspaceSvc, gitService,
 			});
 			if (done) return true;
 			node.children.forEach(
-				function(c) {
+				function (c) {
 					return this._fnr(c, replacement);
 				}.bind(this)
 			);
@@ -272,7 +272,7 @@ let WorkspaceTreeAdapter = function($http, treeConfig, workspaceSvc, gitService,
 	};
 };
 
-WorkspaceTreeAdapter.prototype.init = function(containerEl, workspaceName, workspaceController, gitService) {
+WorkspaceTreeAdapter.prototype.init = function (containerEl, workspaceName, workspaceController, gitService) {
 	this.containerEl = containerEl;
 	this.workspaceName = workspaceName;
 	this.gitService = gitService;
@@ -284,7 +284,7 @@ WorkspaceTreeAdapter.prototype.init = function(containerEl, workspaceName, works
 	jstree
 		.on(
 			'select_node.jstree',
-			function(e, data) {
+			function (e, data) {
 				if (data.node.type === 'project') {
 					workspaceController.selectedProject = data.node.text;
 				} else if (data.node.type === 'local' || data.node.type === 'remote') {
@@ -296,11 +296,11 @@ WorkspaceTreeAdapter.prototype.init = function(containerEl, workspaceName, works
 		)
 		.on(
 			'dblclick.jstree',
-			function(evt) {
+			function (evt) {
 				this.dblClickNode(this.jstree.get_node(evt.target));
 			}.bind(this)
 		)
-		.on('open_node.jstree', function(evt, data) {
+		.on('open_node.jstree', function (evt, data) {
 			if (
 				data.node.children.length === 1 &&
 				$('.workspace').jstree().get_node(data.node.children[0]).original === 'Loading local branches...'
@@ -319,8 +319,8 @@ WorkspaceTreeAdapter.prototype.init = function(containerEl, workspaceName, works
 				$('.workspace').jstree('delete_node', $('.workspace').jstree().get_node(data.node.children[0]));
 				let position = 'last';
 
-				workspaceController.http.get(url).then(function(response) {
-					response.data.local.forEach(function(branch) {
+				workspaceController.http.get(url).then(function (response) {
+					response.data.local.forEach(function (branch) {
 						let nodeText =
 							branch.name +
 							': ' +
@@ -362,8 +362,8 @@ WorkspaceTreeAdapter.prototype.init = function(containerEl, workspaceName, works
 					.build();
 				$('.workspace').jstree('delete_node', $('.workspace').jstree().get_node(data.node.children[0]));
 				let position = 'last';
-				workspaceController.http.get(url).then(function(response) {
-					response.data.remote.forEach(function(branch) {
+				workspaceController.http.get(url).then(function (response) {
+					response.data.remote.forEach(function (branch) {
 						let nodeText =
 							branch.name +
 							': ' +
@@ -391,46 +391,46 @@ WorkspaceTreeAdapter.prototype.init = function(containerEl, workspaceName, works
 				});
 			}
 		})
-		.on('close_node.jstree', function(evt, data) {
+		.on('close_node.jstree', function (evt, data) {
 			//
 		})
 		.on(
 			'delete_node.jstree',
-			function(e, data) {
+			function (e, data) {
 				//this.deleteNode(data.node)
 			}.bind(this)
 		)
 		.on(
 			'jstree.workspace.pull',
-			function(e, data) {
+			function (e, data) {
 				workspaceController.selectedProject = data.type === 'project' ? data.name : null;
 				$('#pull').click();
 			}.bind(this)
 		)
 		.on(
 			'jstree.workspace.push',
-			function(e, data) {
+			function (e, data) {
 				workspaceController.selectedProject = data.type === 'project' ? data.name : null;
 				$('#push').click();
 			}.bind(this)
 		)
 		.on(
 			'jstree.workspace.reset',
-			function(e, data) {
+			function (e, data) {
 				workspaceController.selectedProject = data.type === 'project' ? data.name : null;
 				$('#reset').click();
 			}.bind(this)
 		)
 		.on(
 			'jstree.workspace.import',
-			function(e, data) {
+			function (e, data) {
 				workspaceController.selectedProject = data.type === 'project' ? data.name : null;
 				$('#import').click();
 			}.bind(this)
 		)
 		.on(
 			'jstree.workspace.delete',
-			function(e, data) {
+			function (e, data) {
 				workspaceController.selectedProjectData = data.type === 'project' ? data : null;
 				workspaceController.selectedProject = data.type === 'project' ? data.name : null;
 				workspaceController.showDeleteDialog();
@@ -438,14 +438,14 @@ WorkspaceTreeAdapter.prototype.init = function(containerEl, workspaceName, works
 		)
 		.on(
 			'jstree.workspace.share',
-			function(e, data) {
+			function (e, data) {
 				workspaceController.selectedProject = data.type === 'project' ? data.name : null;
 				$('#share').click();
 			}.bind(this)
 		)
 		.on(
 			'jstree.workspace.checkout',
-			function(e, data) {
+			function (e, data) {
 				workspaceController.selectedProject = data.project;
 				workspaceController.selectedBranch = data.branch;
 				$('#checkout').click();
@@ -453,7 +453,7 @@ WorkspaceTreeAdapter.prototype.init = function(containerEl, workspaceName, works
 		)
 		.on(
 			'jstree.workspace.commit',
-			function(e, data) {
+			function (e, data) {
 				workspaceController.selectedProject = data.type === 'project' ? data.name : null;
 				$('#commit').click();
 			}.bind(this)
@@ -463,12 +463,12 @@ WorkspaceTreeAdapter.prototype.init = function(containerEl, workspaceName, works
 	return this;
 };
 
-WorkspaceTreeAdapter.prototype.dblClickNode = function(node) {
+WorkspaceTreeAdapter.prototype.dblClickNode = function (node) {
 	// var type = node.original.type;
 	// if(['folder','project'].indexOf(type)<0)
 	// 	this.$messageHub.announceFileOpen(node.original._file);
 };
-WorkspaceTreeAdapter.prototype.clickNode = function(node) {
+WorkspaceTreeAdapter.prototype.clickNode = function (node) {
 	if (node.original._file && node.original._file.type === 'project') {
 		let projectName = node.original._file.name;
 		let isGit = node.original._file.git;
@@ -487,10 +487,10 @@ WorkspaceTreeAdapter.prototype.clickNode = function(node) {
 	}
 	//this.$messageHub.announceFileSelected(node.original._file);
 };
-WorkspaceTreeAdapter.prototype.raw = function() {
+WorkspaceTreeAdapter.prototype.raw = function () {
 	return this.jstree;
 };
-WorkspaceTreeAdapter.prototype.refresh = function(node, keepState, $messageHub) {
+WorkspaceTreeAdapter.prototype.refresh = function (node, keepState, $messageHub) {
 	let messageHub = new FramesMessageHub();
 	//TODO: This is reliable but a bit intrusive. Find out a more subtle way to update on demand
 	let resourcepath;
@@ -500,7 +500,7 @@ WorkspaceTreeAdapter.prototype.refresh = function(node, keepState, $messageHub) 
 		resourcepath = this.workspaceName;
 	}
 	return this.gitService.load(resourcepath).then(
-		function(_data) {
+		function (_data) {
 			let data = _data;
 			// var data = [];
 			// if(_data.type == 'workspace'){
@@ -531,44 +531,44 @@ WorkspaceTreeAdapter.prototype.refresh = function(node, keepState, $messageHub) 
 		}.bind(this)
 	);
 };
-WorkspaceTreeAdapter.prototype.pull = function(resource) {
+WorkspaceTreeAdapter.prototype.pull = function (resource) {
 	return this.gitService.pull(resource.path).then(
-		function() {
+		function () {
 			return this.$messageHub.announcePublish(resource);
 		}.bind(this)
 	);
 };
-WorkspaceTreeAdapter.prototype.push = function(resource) {
+WorkspaceTreeAdapter.prototype.push = function (resource) {
 	return this.gitService.push(resource.path).then(
-		function() {
+		function () {
 			return this.$messageHub.announcePublish(resource);
 		}.bind(this)
 	);
 };
-WorkspaceTreeAdapter.prototype.reset = function(resource) {
+WorkspaceTreeAdapter.prototype.reset = function (resource) {
 	return this.gitService.reset(resource.path).then(
-		function() {
+		function () {
 			return this.$messageHub.announcePublish(resource);
 		}.bind(this)
 	);
 };
-WorkspaceTreeAdapter.prototype.share = function(resource) {
+WorkspaceTreeAdapter.prototype.share = function (resource) {
 	return this.gitService.share(resource.path).then(
-		function() {
+		function () {
 			return this.$messageHub.announcePublish(resource);
 		}.bind(this)
 	);
 };
-WorkspaceTreeAdapter.prototype.checkout = function(resource) {
+WorkspaceTreeAdapter.prototype.checkout = function (resource) {
 	return this.gitService.checkout(resource.path).then(
-		function() {
+		function () {
 			return this.$messageHub.announcePublish(resource);
 		}.bind(this)
 	);
 };
-WorkspaceTreeAdapter.prototype.commit = function(resource) {
+WorkspaceTreeAdapter.prototype.commit = function (resource) {
 	return this.gitService.commit(resource.path).then(
-		function() {
+		function () {
 			return this.$messageHub.announcePublish(resource);
 		}.bind(this)
 	);
@@ -577,26 +577,26 @@ WorkspaceTreeAdapter.prototype.commit = function(resource) {
 /**
  * Git Service API delegate
  */
-let GitService = function($http, $messageHub, gitServiceUrl, treeCfg) {
+let GitService = function ($http, $messageHub, gitServiceUrl, treeCfg) {
 	this.gitServiceUrl = gitServiceUrl;
 	this.typeMapping = treeCfg['types'];
 	this.$http = $http;
 	this.$messageHub = $messageHub;
 };
-GitService.prototype.load = function(wsResourcePath) {
+GitService.prototype.load = function (wsResourcePath) {
 	let messageHub = this.$messageHub;
 	let url = new UriBuilder().path(this.gitServiceUrl.split('/')).path(wsResourcePath.split('/')).build();
 	return this.$http.get(url, { headers: { describe: 'application/json' } }).then(
-		function(response) {
+		function (response) {
 			return response.data;
 		},
-		function(response) {
+		function (response) {
 			let errorMessage = JSON.parse(response.data.error).message;
 			messageHub.announceAlertError('Loading Git Repositories Error', errorMessage);
 		}
 	);
 };
-GitService.prototype.cloneProject = function(
+GitService.prototype.cloneProject = function (
 	wsTree,
 	workspace,
 	repository,
@@ -618,18 +618,18 @@ GitService.prototype.cloneProject = function(
 			projectName: projectName
 		})
 		.then(
-			function(response) {
+			function (response) {
 				wsTree.refresh();
 				return response.data;
 			},
-			function(response) {
+			function (response) {
 				wsTree.refresh();
 				let errorMessage = JSON.parse(response.data.error).message;
 				messageHub.announceAlertError('Git Clone Error', errorMessage);
 			}
 		);
 };
-GitService.prototype.pullAllProjects = function(wsTree, workspace, username, password, branch) {
+GitService.prototype.pullAllProjects = function (wsTree, workspace, username, password, branch) {
 	let messageHub = this.$messageHub;
 	let url = new UriBuilder().path(this.gitServiceUrl.split('/')).path(workspace).path('pull').build();
 	return this.$http
@@ -640,18 +640,18 @@ GitService.prototype.pullAllProjects = function(wsTree, workspace, username, pas
 			branch: branch
 		})
 		.then(
-			function(response) {
+			function (response) {
 				wsTree.refresh();
 				return response.data;
 			},
-			function(response) {
+			function (response) {
 				wsTree.refresh();
 				let errorMessage = JSON.parse(response.data.error).message;
 				messageHub.announceAlertError('Git Pull All Projects Error', errorMessage, 'error');
 			}
 		);
 };
-GitService.prototype.pullProject = function(wsTree, workspace, project, username, password, branch) {
+GitService.prototype.pullProject = function (wsTree, workspace, project, username, password, branch) {
 	let messageHub = this.$messageHub;
 	let url = new UriBuilder().path(this.gitServiceUrl.split('/')).path(workspace).path(project).path('pull').build();
 	return this.$http
@@ -662,18 +662,18 @@ GitService.prototype.pullProject = function(wsTree, workspace, project, username
 			branch: branch
 		})
 		.then(
-			function(response) {
+			function (response) {
 				wsTree.refresh();
 				return response.data;
 			},
-			function(response) {
+			function (response) {
 				wsTree.refresh();
 				let errorMessage = JSON.parse(response.data.error).message;
 				messageHub.announceAlertError('Git Pull Project Error', errorMessage, 'error');
 			}
 		);
 };
-GitService.prototype.pushAllProjects = function(wsTree, workspace, username, password, email) {
+GitService.prototype.pushAllProjects = function (wsTree, workspace, username, password, email) {
 	let messageHub = this.$messageHub;
 	let url = new UriBuilder().path(this.gitServiceUrl.split('/')).path(workspace).path('push').build();
 	return this.$http
@@ -683,18 +683,18 @@ GitService.prototype.pushAllProjects = function(wsTree, workspace, username, pas
 			email: email
 		})
 		.then(
-			function(response) {
+			function (response) {
 				wsTree.refresh();
 				return response.data;
 			},
-			function(response) {
+			function (response) {
 				wsTree.refresh();
 				let errorMessage = JSON.parse(response.data.error).message;
 				messageHub.announceAlertError('Git Push All Projects Error', errorMessage);
 			}
 		);
 };
-GitService.prototype.pushProject = function(wsTree, workspace, project, username, password, email, branch) {
+GitService.prototype.pushProject = function (wsTree, workspace, project, username, password, email, branch) {
 	let messageHub = this.$messageHub;
 	let url = new UriBuilder().path(this.gitServiceUrl.split('/')).path(workspace).path(project).path('push').build();
 	return this.$http
@@ -705,33 +705,33 @@ GitService.prototype.pushProject = function(wsTree, workspace, project, username
 			branch: branch
 		})
 		.then(
-			function(response) {
+			function (response) {
 				wsTree.refresh();
 				return response.data;
 			},
-			function(response) {
+			function (response) {
 				wsTree.refresh();
 				let errorMessage = JSON.parse(response.data.error).message;
 				messageHub.announceAlertError('Git Push Project Error', errorMessage);
 			}
 		);
 };
-GitService.prototype.resetProject = function(wsTree, workspace, project) {
+GitService.prototype.resetProject = function (wsTree, workspace, project) {
 	let messageHub = this.$messageHub;
 	let url = new UriBuilder().path(this.gitServiceUrl.split('/')).path(workspace).path(project).path('reset').build();
 	return this.$http.post(url, {}).then(
-		function(response) {
+		function (response) {
 			wsTree.refresh();
 			return response.data;
 		},
-		function(response) {
+		function (response) {
 			wsTree.refresh();
 			let errorMessage = JSON.parse(response.data.error).message;
 			messageHub.announceAlertError('Git Reset Project Error', errorMessage);
 		}
 	);
 };
-GitService.prototype.importProjects = function(wsTree, workspace, repository) {
+GitService.prototype.importProjects = function (wsTree, workspace, repository) {
 	let messageHub = this.$messageHub;
 	let url = new UriBuilder()
 		.path(this.gitServiceUrl.split('/'))
@@ -740,18 +740,18 @@ GitService.prototype.importProjects = function(wsTree, workspace, repository) {
 		.path('import')
 		.build();
 	return this.$http.post(url, {}).then(
-		function(response) {
+		function (response) {
 			wsTree.refresh();
 			return response.data;
 		},
-		function(response) {
+		function (response) {
 			wsTree.refresh();
 			let errorMessage = JSON.parse(response.data.error).message;
 			messageHub.announceAlertError('Git Import Projects Error', errorMessage);
 		}
 	);
 };
-GitService.prototype.deleteRepository = function(wsTree, workspace, repositoryName) {
+GitService.prototype.deleteRepository = function (wsTree, workspace, repositoryName) {
 	let messageHub = this.$messageHub;
 	let url = new UriBuilder()
 		.path(this.gitServiceUrl.split('/'))
@@ -760,18 +760,18 @@ GitService.prototype.deleteRepository = function(wsTree, workspace, repositoryNa
 		.path('delete')
 		.build();
 	return this.$http.delete(url).then(
-		function(response) {
+		function (response) {
 			wsTree.refresh();
 			return response.data;
 		},
-		function(response) {
+		function (response) {
 			wsTree.refresh();
 			let errorMessage = JSON.parse(response.data.error).message;
 			messageHub.announceAlertError('Git Delete Project Error', errorMessage);
 		}
 	);
 };
-GitService.prototype.shareProject = function(
+GitService.prototype.shareProject = function (
 	wsTree,
 	workspace,
 	project,
@@ -795,18 +795,18 @@ GitService.prototype.shareProject = function(
 			email: email
 		})
 		.then(
-			function(response) {
+			function (response) {
 				wsTree.refresh();
 				return response.data;
 			},
-			function(response) {
+			function (response) {
 				wsTree.refresh();
 				let errorMessage = JSON.parse(response.data.error).message;
 				messageHub.announceAlertError('Git Share Project Error', errorMessage);
 			}
 		);
 };
-GitService.prototype.checkoutBranch = function(wsTree, workspace, project, branch, username, password) {
+GitService.prototype.checkoutBranch = function (wsTree, workspace, project, branch, username, password) {
 	let messageHub = this.$messageHub;
 	let url = new UriBuilder()
 		.path(this.gitServiceUrl.split('/'))
@@ -822,18 +822,18 @@ GitService.prototype.checkoutBranch = function(wsTree, workspace, project, branc
 			password: btoa(password)
 		})
 		.then(
-			function(response) {
+			function (response) {
 				wsTree.refresh();
 				return response.data;
 			},
-			function(response) {
+			function (response) {
 				wsTree.refresh();
 				let errorMessage = JSON.parse(response.data.error).message;
 				messageHub.announceAlertError('Git Checkout Branch Error', errorMessage);
 			}
 		);
 };
-GitService.prototype.commitProject = function(
+GitService.prototype.commitProject = function (
 	wsTree,
 	workspace,
 	project,
@@ -854,11 +854,11 @@ GitService.prototype.commitProject = function(
 			branch: branch
 		})
 		.then(
-			function(response) {
+			function (response) {
 				wsTree.refresh();
 				return response.data;
 			},
-			function(response) {
+			function (response) {
 				wsTree.refresh();
 				let errorMessage = JSON.parse(response.data.error).message;
 				messageHub.announceAlertError('Git Commit Error', errorMessage);
@@ -869,11 +869,11 @@ GitService.prototype.commitProject = function(
 /**
  * Env Service API delegate
  */
-let EnvService = function($http, envServiceUrl) {
+let EnvService = function ($http, envServiceUrl) {
 	this.envServiceUrl = envServiceUrl;
 	this.$http = $http;
 };
-EnvService.prototype.setEnv = function(env) {
+EnvService.prototype.setEnv = function (env) {
 	return this.$http.post(this.envServiceUrl, {
 		env: env
 	});
@@ -888,16 +888,16 @@ angular
 	.constant('ENV_SVC_URL', '/services/v4/js/ide-git/services/env.js');
 
 angular
-	.module('workspace', [ 'workspace.config', 'ngAnimate', 'ngSanitize', 'ui.bootstrap' ])
-	.factory('httpRequestInterceptor', function() {
+	.module('workspace', ['workspace.config', 'ngAnimate', 'ngSanitize', 'ui.bootstrap'])
+	.factory('httpRequestInterceptor', function () {
 		let csrfToken = null;
 		return {
-			request: function(config) {
+			request: function (config) {
 				config.headers['X-Requested-With'] = 'Fetch';
 				config.headers['X-CSRF-Token'] = csrfToken ? csrfToken : 'Fetch';
 				return config;
 			},
-			response: function(response) {
+			response: function (response) {
 				let token = response.headers()['x-csrf-token'];
 				if (token) {
 					csrfToken = token;
@@ -908,9 +908,9 @@ angular
 	})
 	.config([
 		'$httpProvider',
-		function($httpProvider) {
+		function ($httpProvider) {
 			//check if response is error. errors currently are non-json formatted and fail too early
-			$httpProvider.defaults.transformResponse.unshift(function(data, headersGetter, status) {
+			$httpProvider.defaults.transformResponse.unshift(function (data, headersGetter, status) {
 				if (status > 399) {
 					data = {
 						error: data
@@ -923,36 +923,36 @@ angular
 		}
 	])
 	.factory('$messageHub', [
-		function() {
+		function () {
 			let messageHub = new FramesMessageHub();
-			let message = function(evtName, data) {
+			let message = function (evtName, data) {
 				messageHub.post({ data: data }, 'workspace.' + evtName);
 			};
-			let announceFileSelected = function(fileDescriptor) {
+			let announceFileSelected = function (fileDescriptor) {
 				this.message('file.selected', fileDescriptor);
 			};
-			let announceFileCreated = function(fileDescriptor) {
+			let announceFileCreated = function (fileDescriptor) {
 				this.message('file.created', fileDescriptor);
 			};
-			let announceFileOpen = function(fileDescriptor) {
+			let announceFileOpen = function (fileDescriptor) {
 				this.message('file.open', fileDescriptor);
 			};
-			let announcePull = function(fileDescriptor) {
+			let announcePull = function (fileDescriptor) {
 				this.message('file.pull', fileDescriptor);
 			};
-			let announceRepositorySelected = function(workspace, project, isGitProject) {
+			let announceRepositorySelected = function (workspace, project, isGitProject) {
 				messageHub.post(
 					{ data: { workspace: workspace, project: project, isGitProject: isGitProject } },
 					'git.repository.selected'
 				);
 			};
-			let announceRepositoryFileSelected = function(workspace, project, isGitProject, file) {
+			let announceRepositoryFileSelected = function (workspace, project, isGitProject, file) {
 				messageHub.post(
 					{ data: { workspace: workspace, project: project, isGitProject: isGitProject, file: file } },
 					'git.repository.file.selected'
 				);
 			};
-			let announceAlert = function(title, message, type) {
+			let announceAlert = function (title, message, type) {
 				messageHub.post(
 					{
 						data: {
@@ -964,19 +964,19 @@ angular
 					'ide.alert'
 				);
 			};
-			let announceAlertSuccess = function(title, message) {
+			let announceAlertSuccess = function (title, message) {
 				announceAlert(title, message, 'success');
 			};
-			let announceAlertInfo = function(title, message) {
+			let announceAlertInfo = function (title, message) {
 				announceAlert(title, message, 'info');
 			};
-			let announceAlertWarning = function(title, message) {
+			let announceAlertWarning = function (title, message) {
 				announceAlert(title, message, 'warning');
 			};
-			let announceAlertError = function(title, message) {
+			let announceAlertError = function (title, message) {
 				announceAlert(title, message, 'error');
 			};
-			let announceUnpublish = function(fileDescriptor) {
+			let announceUnpublish = function (fileDescriptor) {
 				this.message('file.unpublished', fileDescriptor);
 			};
 			return {
@@ -993,14 +993,14 @@ angular
 				announceAlertWarning: announceAlertWarning,
 				announceAlertError: announceAlertError,
 				announceUnpublish: announceUnpublish,
-				on: function(evt, cb) {
+				on: function (evt, cb) {
 					messageHub.subscribe(cb, evt);
 				}
 			};
 		}
 	])
 	.factory('$treeConfig', [
-		function() {
+		function () {
 			return {
 				core: {
 					themes: {
@@ -1011,7 +1011,7 @@ angular
 						variant: 'small',
 						stripes: true
 					},
-					check_callback: function(o, n, p, i, m) {
+					check_callback: function (o, n, p, i, m) {
 						if (m && m.dnd && m.pos !== 'i') {
 							return false;
 						}
@@ -1023,7 +1023,7 @@ angular
 						return true;
 					}
 				},
-				plugins: [ 'state', 'dnd', 'sort', 'types', 'contextmenu', 'unique' ],
+				plugins: ['state', 'dnd', 'sort', 'types', 'contextmenu', 'unique'],
 				types: {
 					default: {
 						icon: 'fa fa-file-o',
@@ -1042,72 +1042,72 @@ angular
 					}
 				},
 				contextmenu: {
-					items: function(node) {
+					items: function (node) {
 						let ctxmenu = {};
 						if (this.get_type(node) === 'project') {
 							if (node.original._file.git) {
 								ctxmenu.commit = {
 									separator_before: false,
 									label: 'Commit',
-									action: function(data) {
+									action: function (data) {
 										let tree = $.jstree.reference(data.reference);
 										let node = tree.get_node(data.reference);
-										tree.element.trigger('jstree.workspace.commit', [ node.original._file ]);
+										tree.element.trigger('jstree.workspace.commit', [node.original._file]);
 									}.bind(this)
 								};
 								ctxmenu.pull = {
 									separator_before: false,
 									label: 'Pull',
-									action: function(data) {
+									action: function (data) {
 										let tree = $.jstree.reference(data.reference);
 										let node = tree.get_node(data.reference);
-										tree.element.trigger('jstree.workspace.pull', [ node.original._file ]);
+										tree.element.trigger('jstree.workspace.pull', [node.original._file]);
 									}.bind(this)
 								};
 								ctxmenu.push = {
 									separator_before: false,
 									label: 'Push',
-									action: function(data) {
+									action: function (data) {
 										let tree = $.jstree.reference(data.reference);
 										let node = tree.get_node(data.reference);
-										tree.element.trigger('jstree.workspace.push', [ node.original._file ]);
+										tree.element.trigger('jstree.workspace.push', [node.original._file]);
 									}.bind(this)
 								};
 								ctxmenu.reset = {
 									separator_before: false,
 									label: 'Reset',
-									action: function(data) {
+									action: function (data) {
 										let tree = $.jstree.reference(data.reference);
 										let node = tree.get_node(data.reference);
-										tree.element.trigger('jstree.workspace.reset', [ node.original._file ]);
+										tree.element.trigger('jstree.workspace.reset', [node.original._file]);
 									}.bind(this)
 								};
 								ctxmenu.import = {
 									separator_before: true,
 									label: 'Import Project(s)',
-									action: function(data) {
+									action: function (data) {
 										let tree = $.jstree.reference(data.reference);
 										let node = tree.get_node(data.reference);
-										tree.element.trigger('jstree.workspace.import', [ node.original._file ]);
+										tree.element.trigger('jstree.workspace.import', [node.original._file]);
 									}.bind(this)
 								};
 								ctxmenu.delete = {
 									separator_before: true,
 									label: 'Delete',
-									action: function(data) {
+									action: function (data) {
 										let tree = $.jstree.reference(data.reference);
 										let node = tree.get_node(data.reference);
-										tree.element.trigger('jstree.workspace.delete', [ node.original._file ]);
+										tree.element.trigger('jstree.workspace.delete', [node.original._file]);
 									}.bind(this)
 								};
 							} else {
 								ctxmenu.share = {
 									separator_before: false,
 									label: 'Share',
-									action: function(data) {
+									action: function (data) {
 										let tree = $.jstree.reference(data.reference);
 										let node = tree.get_node(data.reference);
-										tree.element.trigger('jstree.workspace.share', [ node.original._file ]);
+										tree.element.trigger('jstree.workspace.share', [node.original._file]);
 									}.bind(this)
 								};
 							}
@@ -1115,7 +1115,7 @@ angular
 							ctxmenu.checkout = {
 								separator_before: false,
 								label: 'Checkout',
-								action: function(data) {
+								action: function (data) {
 									let tree = $.jstree.reference(data.reference);
 									let node = tree.get_node(data.reference);
 									tree.element.trigger('jstree.workspace.checkout', [
@@ -1136,27 +1136,27 @@ angular
 		'$messageHub',
 		'GIT_SVC_URL',
 		'$treeConfig',
-		function($http, $messageHub, GIT_SVC_URL, $treeConfig) {
+		function ($http, $messageHub, GIT_SVC_URL, $treeConfig) {
 			return new GitService($http, $messageHub, GIT_SVC_URL, $treeConfig);
 		}
 	])
 	.factory('envService', [
 		'$http',
 		'ENV_SVC_URL',
-		function($http, ENV_SVC_URL) {
+		function ($http, ENV_SVC_URL) {
 			return new EnvService($http, ENV_SVC_URL);
 		}
 	])
 	.factory('publishService', [
 		'$http',
 		'PUBLISH_SVC_URL',
-		function($http, PUBLISH_SVC_URL) {
+		function ($http, PUBLISH_SVC_URL) {
 			return {
-				publish: function(resourcePath) {
+				publish: function (resourcePath) {
 					let url = new UriBuilder().path(PUBLISH_SVC_URL.split('/')).path(resourcePath.split('/')).build();
 					return $http.post(url, {});
 				},
-				unpublish: function(resourcePath) {
+				unpublish: function (resourcePath) {
 					let url = new UriBuilder().path(PUBLISH_SVC_URL.split('/')).path(resourcePath.split('/')).build();
 					return $http.delete(url, {});
 				}
@@ -1168,7 +1168,7 @@ angular
 		'WS_SVC_MANAGER_URL',
 		'WS_SVC_URL',
 		'$treeConfig',
-		function($http, WS_SVC_MANAGER_URL, WS_SVC_URL, $treeConfig) {
+		function ($http, WS_SVC_MANAGER_URL, WS_SVC_URL, $treeConfig) {
 			return new WorkspaceService($http, WS_SVC_MANAGER_URL, WS_SVC_URL, $treeConfig);
 		}
 	])
@@ -1178,7 +1178,7 @@ angular
 		'workspaceService',
 		'gitService',
 		'$messageHub',
-		function($http, $treeConfig, WorkspaceService, GitService, $messageHub) {
+		function ($http, $treeConfig, WorkspaceService, GitService, $messageHub) {
 			return new WorkspaceTreeAdapter($http, $treeConfig, WorkspaceService, GitService, $messageHub);
 		}
 	])
@@ -1191,7 +1191,7 @@ angular
 		'$messageHub',
 		'$http',
 		'$scope',
-		function(
+		function (
 			workspaceService,
 			workspaceTreeAdapter,
 			gitService,
@@ -1213,7 +1213,7 @@ angular
 			let loadingMessage = document.getElementsByClassName('loading-message')[0];
 
 			workspaceService.listWorkspaceNames().then(
-				function(workspaceNames) {
+				function (workspaceNames) {
 					this.workspaces = workspaceNames;
 					let storedWorkspace = JSON.parse(localStorage.getItem('DIRIGIBLE.workspace') || '{}');
 					if ('name' in storedWorkspace) {
@@ -1229,19 +1229,17 @@ angular
 
 			if (loadingOverview) loadingOverview.classList.add('hide');
 
-			this.setLoaderState = function(value) {
-				console.log('SCOPE BEFORE SET', $scope);
+			this.setLoaderState = function (value) {
 				$scope.loaderOn = value;
-				console.log('SCOPE AFTER SET', $scope);
 			};
 
-			this.showDeleteDialog = function() {
+			this.showDeleteDialog = function () {
 				$scope.unpublishOnDelete = true;
 				$scope.$apply(); // Because of JQuery and the bootstrap modal
 				$('#delete').click();
 			};
 
-			this.workspaceSelected = function() {
+			this.workspaceSelected = function () {
 				if (this.wsTree) {
 					this.wsTree.workspaceName = this.selectedWorkspace;
 					this.wsTree.refresh();
@@ -1252,7 +1250,7 @@ angular
 				this.wsTree.refresh();
 			};
 
-			this.okClone = function() {
+			this.okClone = function () {
 				if (this.clone.url) {
 					loadingMessage.innerText = 'Clone...';
 					if (loadingOverview) loadingOverview.classList.remove('hide');
@@ -1268,7 +1266,7 @@ angular
 				}
 			};
 
-			this.okPullAll = function() {
+			this.okPullAll = function () {
 				loadingMessage.innerText = 'Pull all...';
 				if (loadingOverview) loadingOverview.classList.remove('hide');
 				gitService.pullAllProjects(
@@ -1280,7 +1278,7 @@ angular
 				);
 			};
 
-			this.okPull = function() {
+			this.okPull = function () {
 				loadingMessage.innerText = 'Pull ...';
 				if (loadingOverview) loadingOverview.classList.remove('hide');
 				gitService.pullProject(
@@ -1293,7 +1291,7 @@ angular
 				);
 			};
 
-			this.okPushAll = function() {
+			this.okPushAll = function () {
 				loadingMessage.innerText = 'Push all...';
 				if (loadingOverview) loadingOverview.classList.remove('hide');
 				gitService.pushAllProjects(
@@ -1305,7 +1303,7 @@ angular
 				);
 			};
 
-			this.okPush = function() {
+			this.okPush = function () {
 				gitService.pushProject(
 					this.wsTree,
 					this.selectedWorkspace,
@@ -1317,7 +1315,7 @@ angular
 				);
 			};
 
-			this.okReset = function() {
+			this.okReset = function () {
 				gitService.resetProject(
 					this.wsTree,
 					this.selectedWorkspace,
@@ -1328,16 +1326,16 @@ angular
 				);
 			};
 
-			this.okImport = function() {
+			this.okImport = function () {
 				gitService.importProjects(this.wsTree, this.selectedWorkspace, this.selectedProject);
 			};
 
-			this.okDelete = function() {
+			this.okDelete = function () {
 				if ($scope.unpublishOnDelete) {
 					for (let i = 0; i < this.selectedProjectData.folders.length; i++) {
 						let resourcePath = `/${this.selectedWorkspace}/${this.selectedProjectData.folders[i].name}`;
 						publishService.unpublish(resourcePath).then(
-							function() {
+							function () {
 								return $messageHub.announceUnpublish(this.selectedProjectData);
 							}.bind(this)
 						);
@@ -1346,7 +1344,7 @@ angular
 				gitService.deleteRepository(this.wsTree, this.selectedWorkspace, this.selectedProject);
 			};
 
-			this.okShare = function() {
+			this.okShare = function () {
 				gitService.shareProject(
 					this.wsTree,
 					this.selectedWorkspace,
@@ -1360,7 +1358,7 @@ angular
 				);
 			};
 
-			this.okCheckout = function() {
+			this.okCheckout = function () {
 				gitService.checkoutBranch(
 					this.wsTree,
 					this.selectedWorkspace,
@@ -1371,7 +1369,7 @@ angular
 				);
 			};
 
-			this.okCommit = function() {
+			this.okCommit = function () {
 				gitService.commitProject(
 					this.wsTree,
 					this.selectedWorkspace,
@@ -1384,13 +1382,13 @@ angular
 				);
 			};
 
-			this.refresh = function() {
+			this.refresh = function () {
 				this.wsTree.refresh();
 			};
 
 			$messageHub.on(
 				'git.repository.run',
-				function(msg) {
+				function (msg) {
 					if (msg.data.env) {
 						envService.setEnv(msg.data.env);
 					}
@@ -1421,7 +1419,7 @@ angular
 
 			$messageHub.on(
 				'workspace.action.complete',
-				function(msg) {
+				function (msg) {
 					if (msg.data === 'clone.project') {
 						$scope.$apply(() => {
 							if (loadingOverview) loadingOverview.classList.add('hide');
