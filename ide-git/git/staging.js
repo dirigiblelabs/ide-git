@@ -148,10 +148,10 @@ GitService.prototype.getOriginUrls = function (workspace, project) {
 };
 
 GitService.prototype.setFetchUrl = function (workspace, project, url) {
-	let requesturl = new UriBuilder().path(this.gitServiceUrl.split('/')).path(workspace).path(project).path('set-fetch-url').build();
-	let getparams = { params: { url: url } };
+	let requesturl = new UriBuilder().path(this.gitServiceUrl.split('/')).path(workspace).path(project).path('fetch-url').build();
+	let params = { params: { url: url } };
 
-	return this.$http.get(requesturl, getparams).then(
+	return this.$http.post(requesturl, JSON.stringify(params)).then(
 		function (response) {
 			return response;
 		}
@@ -159,10 +159,10 @@ GitService.prototype.setFetchUrl = function (workspace, project, url) {
 };
 
 GitService.prototype.setPushUrl = function (workspace, project, url) {
-	let requesturl = new UriBuilder().path(this.gitServiceUrl.split('/')).path(workspace).path(project).path('set-push-url').build();
-	let getparams = { params: { url: url } };
+	let requesturl = new UriBuilder().path(this.gitServiceUrl.split('/')).path(workspace).path(project).path('push-url').build();
+	let params = { params: { url: url } };
 
-	return this.$http.get(requesturl, getparams).then(
+	return this.$http.post(requesturl, JSON.stringify(params)).then(
 		function (response) {
 			return response;
 		}
