@@ -149,9 +149,9 @@ GitService.prototype.getOriginUrls = function (workspace, project) {
 
 GitService.prototype.setFetchUrl = function (workspace, project, url) {
 	let requesturl = new UriBuilder().path(this.gitServiceUrl.split('/')).path(workspace).path(project).path('fetch-url').build();
-	let params = { params: { url: url } };
+	let params = { url: url };
 
-	return this.$http.post(requesturl, JSON.stringify(params)).then(
+	return this.$http.post(requesturl, params).then(
 		function (response) {
 			return response;
 		}
@@ -160,9 +160,9 @@ GitService.prototype.setFetchUrl = function (workspace, project, url) {
 
 GitService.prototype.setPushUrl = function (workspace, project, url) {
 	let requesturl = new UriBuilder().path(this.gitServiceUrl.split('/')).path(workspace).path(project).path('push-url').build();
-	let params = { params: { url: url } };
+	let params = { url: url };
 
-	return this.$http.post(requesturl, JSON.stringify(params)).then(
+	return this.$http.post(requesturl, params).then(
 		function (response) {
 			return response;
 		}
@@ -359,8 +359,8 @@ let stagingApp = angular
 				}
 				gitService.setFetchUrl($scope.selectedWorkspace, $scope.selectedProject, $scope.fetchURLeditable).then(
 					function (res) {
-						if (res.data && res.data.map && res.data.map.status && res.data.map.status == "success") {
-							$scope.fetchURL = res.data.map.url;
+						if (res.data && res.data.status && res.data.status == "success") {
+							$scope.fetchURL = res.data.url;
 						} else {
 							messageHub.announceAlertError('Git Set Fetch URL Error',
 								typeof res.data.error.message !== undefined ? res.data.error.message : 'Error occured!');
@@ -384,8 +384,9 @@ let stagingApp = angular
 				}
 				gitService.setPushUrl($scope.selectedWorkspace, $scope.selectedProject, $scope.pushURLeditable).then(
 					function (res) {
-						if (res.data && res.data.map && res.data.map.status && res.data.map.status == "success") {
-							$scope.pushURL = res.data.map.url;
+						console.log(res);
+						if (res.data && res.data.status && res.data.status == "success") {
+							$scope.pushURL = res.data.url;
 						} else {
 							messageHub.announceAlertError('Git Set Push URL Error',
 								typeof res.data.error.message !== undefined ? res.data.error.message : 'Error occured!');
