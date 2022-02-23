@@ -582,12 +582,16 @@ let GitService = function ($http, $messageHub, gitServiceUrl, treeCfg) {
 	this.typeMapping = treeCfg['types'];
 	this.$http = $http;
 	this.$messageHub = $messageHub;
+	this.listOfProjects = [];
 };
+
 GitService.prototype.load = function (wsResourcePath) {
 	let messageHub = this.$messageHub;
+	let myGitService = this;
 	let url = new UriBuilder().path(this.gitServiceUrl.split('/')).path(wsResourcePath.split('/')).build();
 	return this.$http.get(url, { headers: { describe: 'application/json' } }).then(
 		function (response) {
+			myGitService.listProjects(response.data);
 			return response.data;
 		},
 		function (response) {
@@ -595,6 +599,16 @@ GitService.prototype.load = function (wsResourcePath) {
 			messageHub.announceAlertError('Loading Git Repositories Error', errorMessage);
 		}
 	);
+};
+GitService.prototype.listProjects = function (data) {
+	let known_names = [];
+	for (let i = 0; i < data.length; i++) {
+		let val = data[i];
+		if (val.type && val.type === 'project')
+			known_names.push(val.name);
+	}
+	this.listOfProjects = known_names;
+	return known_names;
 };
 GitService.prototype.cloneProject = function (
 	wsTree,
@@ -629,27 +643,10 @@ GitService.prototype.cloneProject = function (
 			}
 		);
 };
-GitService.prototype.pullAllProjects = function (wsTree, workspace, username, password, branch) {
-	let messageHub = this.$messageHub;
-	let url = new UriBuilder().path(this.gitServiceUrl.split('/')).path(workspace).path('pull').build();
-	return this.$http
-		.post(url, {
-			publish: true,
-			username: username,
-			password: btoa(password),
-			branch: branch
-		})
-		.then(
-			function (response) {
-				wsTree.refresh();
-				return response.data;
-			},
-			function (response) {
-				wsTree.refresh();
-				let errorMessage = JSON.parse(response.data.error).message;
-				messageHub.announceAlertError('Git Pull All Projects Error', errorMessage, 'error');
-			}
-		);
+GitService.prototype.pullManyProjects = function (wsTree, workspace, username, password, branch, projects2pull) {
+	for (let i = 0; i < projects2pull.length; i++) {
+		this.pullProject(wsTree, workspace, projects2pull[i], username, password, branch);
+	}
 };
 GitService.prototype.pullProject = function (wsTree, workspace, project, username, password, branch) {
 	let messageHub = this.$messageHub;
@@ -1269,12 +1266,13 @@ angular
 			this.okPullAll = function () {
 				loadingMessage.innerText = 'Pull all...';
 				if (loadingOverview) loadingOverview.classList.remove('hide');
-				gitService.pullAllProjects(
+				gitService.pullManyProjects(
 					this.wsTree,
 					this.selectedWorkspace,
 					this.username,
 					this.password,
-					this.branch
+					this.branch,
+					gitService.listOfProjects
 				);
 			};
 
@@ -1384,6 +1382,7 @@ angular
 
 			this.refresh = function () {
 				this.wsTree.refresh();
+				this.listProjects(this.workspace);
 			};
 
 			$messageHub.on(
