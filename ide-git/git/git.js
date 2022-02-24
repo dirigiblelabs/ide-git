@@ -584,7 +584,6 @@ let GitService = function ($http, $messageHub, gitServiceUrl, treeCfg) {
 	this.$messageHub = $messageHub;
 	this.listOfProjects = [];
 };
-
 GitService.prototype.load = function (wsResourcePath) {
 	let messageHub = this.$messageHub;
 	let myGitService = this;
