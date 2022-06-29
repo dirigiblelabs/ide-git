@@ -8,13 +8,17 @@
  * Contributors:
  *   SAP - initial API and implementation
  */
-exports.getView = function () {
-	return {
-		"id": "staging",
-		"name": "Staging",
-		"factory": "frame",
-		"region": "center-bottom",
-		"label": "Staging",
-		"link": "../ide-git/git/staging.html"
-	};
+
+const viewData = {
+	id: "staging",
+	factory: "frame",
+	region: "center-bottom",
+	label: "Staging",
+	link: "../ide-git/git/staging.html"
+};
+
+if (typeof exports !== 'undefined') {
+	exports.getView = function () {
+		return viewData;
+	}
 }
